@@ -10,9 +10,9 @@ spring:
   application:
     name: user-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/gameforum
-    username: users
-    password: SKfjcmoipamf9780f2hfnm@
+    url: jdbc:postgresql://localhost:5432/users
+    username: myuser
+    password: sa
     driver-class-name: org.postgresql.Driver
   jpa:
     database: POSTGRESQL
