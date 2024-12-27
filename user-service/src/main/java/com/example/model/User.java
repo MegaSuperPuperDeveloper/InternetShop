@@ -35,9 +35,6 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    private String email;
-
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "roles", joinColumns = @JoinColumn(name = "id"))
     @Enumerated(EnumType.STRING)
@@ -46,10 +43,13 @@ public class User implements UserDetails {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "rewards", joinColumns = @JoinColumn(name = "id"))
     @Enumerated(EnumType.STRING)
-    private Set<Reward> rewards;
+    private Set<String> rewards = new HashSet<>();
 
     // Список продаваемых товаров
     // private List<Product> listProduct;
+
+    // Список тегов для рекомендаций
+    // private Set<String> tags;
 
     @Column(nullable = false)
     private boolean isPremiumUser;
@@ -64,14 +64,13 @@ public class User implements UserDetails {
 
     private String description;
 
-    public User(String username, String password, String email) {
+    public User(String username, String password) {
         this.username = username;
         this.password = password;
-        this.email = email;
         this.isPremiumUser = false;
         this.createdAt = LocalDateTime.now();
         roles.add(Role.USER);
-        rewards.add(Reward.USER_HAS_REGISTERED);
+        rewards.add(Reward.USER_HAS_REGISTERED.getName());
     }
 
     public boolean hasUserRole(Role role) {

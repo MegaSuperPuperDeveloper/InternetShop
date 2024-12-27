@@ -7,11 +7,7 @@ public enum Role {
 
     USER("Пользователь", 1),
     MODERATOR("Модератор", 2),
-    SENIOR_MODERATOR("Старший модератор", 3),
-    TYPIST_MODERATOR("Наборщик Модерации", 4),
-    LEADER_MODERATOR("Глава Модерации", 5),
-    DEVELOPER("Разработчик", 6),
-    OWNER("Владелец", 7);
+    OWNER("Владелец", 3);
 
     private final String name;
     private final int hierarchy;

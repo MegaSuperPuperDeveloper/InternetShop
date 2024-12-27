@@ -2,20 +2,19 @@ CREATE TABLE users (
     idUser SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
     password VARCHAR(50) NOT NULL,
-    email VARCHAR(320) NOT NULL,
-    is_premium_user BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL,
     description VARCHAR(1000)
 );
 
 CREATE TABLE roles (
-    id BIGINT NOT NULL,
-    role VARCHAR(255) NOT NULL
+    id SERIAL PRIMARY KEY,
+    role VARCHAR(150) NOT NULL,
+    hierarchy INT NOT NULL
 );
 
 CREATE TABLE rewards (
-    id BIGINT NOT NULL,
+    id SERIAL PRIMARY KEY,
     reward VARCHAR(255) NOT NULL
 );
 

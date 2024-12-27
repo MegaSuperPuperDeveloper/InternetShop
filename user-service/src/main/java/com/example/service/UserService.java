@@ -26,7 +26,7 @@ public class UserService implements UserDetailsService {
         return userRepository.findById(userId).orElse(null);
     }
 
-    public Optional<User> findByUsername(String username) {
+    public User findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
@@ -34,12 +34,8 @@ public class UserService implements UserDetailsService {
         userRepository.deleteById(userId);
     }
 
-    public User save(String username, String password, String email) {
-        return userRepository.save(new User(username, password, email));
-    }
-
-    public void updateEmailById(Long userId, String email) {
-        userRepository.updateEmailById(userId, email);
+    public User save(String username, String password) {
+        return userRepository.save(new User(username, password));
     }
 
     public void updatePasswordById(Long userId, String password) {
@@ -77,7 +73,10 @@ public class UserService implements UserDetailsService {
     // The method is required to retrieve data by the username
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = findByUsername(username).orElseThrow(() -> new UsernameNotFoundException(String.format("User '%s' not found", username)));
+        if (findByUsername(username) == null) {
+            throw new UsernameNotFoundException(String.format("User '%s' not found", username));
+        }
+        User user = findByUsername(username);
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getAuthorities());
     }
 

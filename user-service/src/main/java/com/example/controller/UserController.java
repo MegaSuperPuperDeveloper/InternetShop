@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 
 @AllArgsConstructor
-@RestController("/users")
+@RestController
 public class UserController {
 
     private final UserService userService;
 
-    @GetMapping
+    @GetMapping("/users")
     public Iterable<User> getUsers() {
         return userService.findAll();
     }
@@ -28,19 +28,18 @@ public class UserController {
         return new ResponseEntity<>(userService.findById(userId), HttpStatus.OK);
     }
 
-    @GetMapping("/profiles/{username}")
-    public ResponseEntity<Optional<User>> getUserByUsername(@PathVariable String username) {
-        if (userService.findByUsername(username).isEmpty()) {
+    @GetMapping("/profile/{username}")
+    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
+        if (userService.findByUsername(username) == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(userService.findByUsername(username), HttpStatus.OK);
     }
 
-    @PostMapping("/{username}/{password}/{email}")
+    @PostMapping("/{username}/{password}")
     public ResponseEntity<User> createUser(@PathVariable String username,
-                                           @PathVariable String password,
-                                           @PathVariable String email) {
-        return new ResponseEntity<>(userService.save(username, password, email), HttpStatus.CREATED);
+                                           @PathVariable String password) {
+        return new ResponseEntity<>(userService.save(username, password), HttpStatus.CREATED);
     }
 
 //    @DeleteMapping("/delete/profile/{userId}")

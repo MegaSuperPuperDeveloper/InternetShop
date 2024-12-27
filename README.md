@@ -2,20 +2,12 @@
 
 game-forum/
 
-├── core-service/              # Сервис Eureka для регистрации всех микросервисов
+├── core-service/              # Сервис Eureka для регистрации всех микросервисов 
 
 ├── user-service/              # Сервис для авторизации и управления пользователями
 
-├── post-service/              # Сервис для постов и контента
+├── product-service/           # Сервис для создания товаров
 
-├── notification-service/      # Сервис для уведомлений
-
-├── category-service/          # Сервис для категорий и подписок
-
-├── support-service/           # Сервис для поддержки
-
-├── logging-service/           # Сервис для логов
-
-├── advertisement-service/     # Сервис для рекламы
+├── category-service/          # Сервис для категорий
 
 └── api-gateway/               # API Gateway для маршрутизации запросов между сервисами
