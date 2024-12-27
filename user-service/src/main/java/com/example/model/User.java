@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,10 +36,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "roles", joinColumns = @JoinColumn(name = "id"))
-    @Enumerated(EnumType.STRING)
-    private Set<Role> roles = new HashSet<>();
+    @Column(nullable = false)
+    private Role role;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "tags", joinColumns = @JoinColumn(name = "id"))
@@ -46,13 +45,10 @@ public class User implements UserDetails {
     private Set<Tag> tags = new HashSet<>();
 
     // Список продаваемых товаров
-    // private List<Product> listProduct;
+    // private List<Product> listProductForSale;
 
-    // Список тегов для рекомендаций
-    // private Set<String> tags;
-
-    @Column(nullable = false)
-    private boolean isPremiumUser;
+    // Список купленных товаров
+    // private List<Product> listBoughtProduct;
 
     @CreationTimestamp
     @Column(nullable = false)
@@ -67,10 +63,9 @@ public class User implements UserDetails {
     public User(String username, String password) {
         this.username = username;
         this.password = password;
-        this.isPremiumUser = false;
         this.createdAt = LocalDateTime.now();
         this.description = "";
-        roles.add(Role.USER);
+        this.role = Role.USER;
     }
 
     // public void publishNewProduct(String name, String description, int price);
@@ -82,14 +77,12 @@ public class User implements UserDetails {
     // public void getProductById();
 
     public boolean hasUserRole(Role role) {
-        return roles.contains(role);
+        return this.role == role;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority(role.name()))
-                .collect(Collectors.toSet());
+        return Collections.singleton(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override

@@ -7,3 +7,16 @@ CREATE TABLE products (
     price DECIMAL NOT NULL,
     count INT NOT NULL
 );
+
+CREATE TABLE tags (
+    id SERIAL PRIMARY KEY,
+    tag VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE product_tag (
+    user_id BIGINT NOT NULL,
+    tag_id BIGINT NOT NULL,
+    PRIMARY KEY (user_id, tag_id),
+    FOREIGN KEY (user_id) REFERENCES users(idUser) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES roles(id) ON DELETE CASCADE
+);
