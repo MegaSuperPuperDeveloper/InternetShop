@@ -1,7 +1,7 @@
 package com.example.model;
 
-import com.example.enums.Reward;
 import com.example.enums.Role;
+import com.example.enums.Tag;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -41,9 +41,9 @@ public class User implements UserDetails {
     private Set<Role> roles = new HashSet<>();
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "rewards", joinColumns = @JoinColumn(name = "id"))
+    @CollectionTable(name = "tags", joinColumns = @JoinColumn(name = "id"))
     @Enumerated(EnumType.STRING)
-    private Set<String> rewards = new HashSet<>();
+    private Set<Tag> tags = new HashSet<>();
 
     // Список продаваемых товаров
     // private List<Product> listProduct;
@@ -69,9 +69,17 @@ public class User implements UserDetails {
         this.password = password;
         this.isPremiumUser = false;
         this.createdAt = LocalDateTime.now();
+        this.description = "";
         roles.add(Role.USER);
-        rewards.add(Reward.USER_HAS_REGISTERED.getName());
     }
+
+    // public void publishNewProduct(String name, String description, int price);
+    // public void deleteProduct(String name);
+    // public void updateProductPrice(String name, int price);
+    // public void updateProductName(String name, String newName);
+    // public void updateProductDescription(String name, String description);
+    // public void getProducts();
+    // public void getProductById();
 
     public boolean hasUserRole(Role role) {
         return roles.contains(role);

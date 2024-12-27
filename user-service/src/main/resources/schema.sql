@@ -2,9 +2,9 @@ CREATE TABLE users (
     idUser SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
     password VARCHAR(50) NOT NULL,
-    created_at TIMESTAMP NOT NULL,
-    updated_at TIMESTAMP NOT NULL,
-    description VARCHAR(1000)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAM NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAM NOT NULL,
+    description VARCHAR(1000) NOT NULL
 );
 
 CREATE TABLE roles (
@@ -13,9 +13,9 @@ CREATE TABLE roles (
     hierarchy INT NOT NULL
 );
 
-CREATE TABLE rewards (
+CREATE TABLE tags (
     id SERIAL PRIMARY KEY,
-    reward VARCHAR(255) NOT NULL
+    tag VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE user_roles (
@@ -24,4 +24,12 @@ CREATE TABLE user_roles (
     PRIMARY KEY (user_id, role_id),
     FOREIGN KEY (user_id) REFERENCES users(idUser) ON DELETE CASCADE,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
+);
+
+CREATE TABLE user_tags (
+    user_id BIGINT NOT NULL,
+    tag_id BIGINT NOT NULL,
+    PRIMARY KEY (user_id, tag_id),
+    FOREIGN KEY (user_id) REFERENCES users(idUser) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES roles(id) ON DELETE CASCADE
 );
