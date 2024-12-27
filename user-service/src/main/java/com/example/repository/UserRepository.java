@@ -14,8 +14,8 @@ import java.util.Set;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     @Modifying
-    @Query("UPDATE User u SET u.roles = :roles WHERE u.id = :id")
-    void updateRoleById(Long id, Set<Role> roles);
+    @Query("UPDATE User u SET u.role = :role WHERE u.id = :id")
+    void updateRoleById(Long id, Role role);
 
     User findByUsername(String username);
 

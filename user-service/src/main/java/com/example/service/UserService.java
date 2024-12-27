@@ -46,29 +46,29 @@ public class UserService implements UserDetailsService {
         userRepository.updateUsernameById(userId, username);
     }
 
-    // The method is required to add a role to a user
-    public void addRoleById(Long userId, Role role) {
-        if (userRepository.existsById(userId)) {
-            User user = findById(userId);
-            if (!user.getRoles().contains(role)) {
-                Set<Role> roles = user.getRoles();
-                roles.add(role);
-                userRepository.updateRoleById(userId, roles);
-            }
-        }
-    }
-
-    // The method is required to delete a role from a user
-    public void deleteRoleById(Long userId, Role role) {
-        if (userRepository.existsById(userId)) {
-            User user = findById(userId);
-            if (user.getRoles().contains(role)) {
-                Set<Role> roles = user.getRoles();
-                roles.remove(role);
-                userRepository.updateRoleById(userId, roles);
-            }
-        }
-    }
+//    // The method is required to add a role to a user
+//    public void addRoleById(Long userId, Role role) {
+//        if (userRepository.existsById(userId)) {
+//            User user = findById(userId);
+//            if (user.getRole() == role) {
+//                Set<Role> roles = user.getRole();
+//                roles.add(role);
+//                userRepository.updateRoleById(userId, roles);
+//            }
+//        }
+//    }
+//
+//    // The method is required to delete a role from a user
+//    public void deleteRoleById(Long userId, Role role) {
+//        if (userRepository.existsById(userId)) {
+//            User user = findById(userId);
+//            if (user.getRole() == role) {
+//                Set<Role> roles = user.getRole();
+//                roles.remove(role);
+//                userRepository.updateRoleById(userId, roles);
+//            }
+//        }
+//    }
 
     // The method is required to retrieve data by the username
     @Override

@@ -30,7 +30,8 @@
         <module>core-service</module>
 		<module>user-service</module>
         <module>product-service</module>
-    </modules>
+		<module>category-service</module>
+	</modules>
 
     <scm>
 		<connection/>
