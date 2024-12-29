@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,14 +37,19 @@ public class Product {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    // private Category category;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "tags", joinColumns = @JoinColumn(name = "id"))
+    @Enumerated(EnumType.STRING)
+    private Set<Tag> tags = new HashSet<>();
 
+    @Column(nullable = false)
     private int count;
 
-    public Product(String name, String description, Double price) {
+    public Product(String name, String description, Double price, Tag tag) {
         this.name = name;
         this.description = description;
         this.price = price;
+        this.tags.add(tag);
     }
 
 }
