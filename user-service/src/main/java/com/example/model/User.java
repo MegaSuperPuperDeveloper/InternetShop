@@ -58,6 +58,7 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(nullable = false)
     private String description;
 
     public User(String username, String password) {
@@ -77,12 +78,12 @@ public class User implements UserDetails {
     // public void getProductById();
 
     public boolean hasUserRole(Role role) {
-        return this.role == role;
+        return getAuthorities().contains(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(role.name()));
+        return Collections.singleton(new SimpleGrantedAuthority(getAuthorities().toString()));
     }
 
     @Override

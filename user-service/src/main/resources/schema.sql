@@ -1,4 +1,4 @@
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     idUser SERIAL PRIMARY KEY,
     username VARCHAR(50) NOT NULL,
     password VARCHAR(50) NOT NULL,
@@ -7,18 +7,18 @@ CREATE TABLE users (
     description VARCHAR(1000) NOT NULL
 );
 
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
     id SERIAL PRIMARY KEY,
     role VARCHAR(150) NOT NULL,
     hierarchy INT NOT NULL
 );
 
-CREATE TABLE tags (
+CREATE TABLE IF NOT EXISTS tags (
     id SERIAL PRIMARY KEY,
     tag VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE user_roles (
+CREATE TABLE IF NOT EXISTS user_roles (
     user_id BIGINT NOT NULL,
     role_id BIGINT NOT NULL,
     PRIMARY KEY (user_id, role_id),
@@ -26,7 +26,7 @@ CREATE TABLE user_roles (
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 );
 
-CREATE TABLE user_tags (
+CREATE TABLE IF NOT EXISTS user_tags (
     user_id BIGINT NOT NULL,
     tag_id BIGINT NOT NULL,
     PRIMARY KEY (user_id, tag_id),
