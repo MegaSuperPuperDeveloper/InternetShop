@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.Set;
@@ -38,37 +39,25 @@ public class UserService implements UserDetailsService {
         return userRepository.save(new User(username, password));
     }
 
+    @Transactional
     public void updatePasswordById(Long userId, String password) {
         userRepository.updatePasswordById(userId, password);
     }
 
+    @Transactional
     public void updateUsernameById(Long userId, String username) {
         userRepository.updateUsernameById(userId, username);
     }
 
-//    // The method is required to add a role to a user
-//    public void addRoleById(Long userId, Role role) {
-//        if (userRepository.existsById(userId)) {
-//            User user = findById(userId);
-//            if (user.getRole() == role) {
-//                Set<Role> roles = user.getRole();
-//                roles.add(role);
-//                userRepository.updateRoleById(userId, roles);
-//            }
-//        }
-//    }
-//
-//    // The method is required to delete a role from a user
-//    public void deleteRoleById(Long userId, Role role) {
-//        if (userRepository.existsById(userId)) {
-//            User user = findById(userId);
-//            if (user.getRole() == role) {
-//                Set<Role> roles = user.getRole();
-//                roles.remove(role);
-//                userRepository.updateRoleById(userId, roles);
-//            }
-//        }
-//    }
+    @Transactional
+    public void updateRoleById(Long userId, Role role) {
+        userRepository.updateRoleById(userId, role);
+    }
+
+    @Transactional
+    public void updateDescriptionById(Long id, String description) {
+        userRepository.updateDescriptionById(id, description);
+    }
 
     // The method is required to retrieve data by the username
     @Override

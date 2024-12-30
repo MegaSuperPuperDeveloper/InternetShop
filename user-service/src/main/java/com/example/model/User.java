@@ -66,7 +66,7 @@ public class User implements UserDetails {
         this.password = password;
         this.createdAt = LocalDateTime.now();
         this.description = "";
-        this.role = Role.USER;
+        this.role = Role.ROLE_USER;
     }
 
     // public void publishNewProduct(String name, String description, int price);
@@ -83,7 +83,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(getAuthorities().toString()));
+        return Collections.singletonList(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override

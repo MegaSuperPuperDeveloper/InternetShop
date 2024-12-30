@@ -13,10 +13,6 @@ import java.util.Set;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Modifying
-    @Query("UPDATE User u SET u.role = :role WHERE u.id = :id")
-    void updateRoleById(Long id, Role role);
-
     User findByUsername(String username);
 
     @Modifying
@@ -26,5 +22,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("UPDATE User u SET u.username = :username WHERE u.id = :id")
     void updateUsernameById(Long id, String username);
+
+    @Modifying
+    @Query("UPDATE User u SET u.role = :role WHERE u.id = :id")
+    void updateRoleById(Long id, Role role);
+
+    @Modifying
+    @Query("UPDATE User u SET u.description = :description WHERE u.id = :id")
+    void updateDescriptionById(Long id, String description);
 
 }

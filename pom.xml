@@ -30,7 +30,6 @@
         <module>core-service</module>
 		<module>user-service</module>
         <module>product-service</module>
-        <module>api-gateway</module>
     </modules>
 
     <scm>
