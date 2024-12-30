@@ -11,3 +11,5 @@ internetShop/
 ├── category-service/          # Сервис для категорий
 
 └── api-gateway/               # API Gateway для маршрутизации запросов между сервисами
+
+Теги подредактировать
