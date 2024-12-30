@@ -18,7 +18,8 @@ public enum Tag {
     DISCOUNTS_AND_PROMOTIONS("Скидки и акции"),
     CAR_PRODUCTS("Товары для авто"),
     PHARMACY("Аптека"),
-    SPORT_AND_RELAX("Спорт и отдых"),
+    SPORT_AND_RELAX("Спорт"),
+    RELAX("Отдых"),
     IKEA_PRODUCTS("Товары ИКЕА"),
     JEWELLERY("Ювелирные товары"),
     BOOKS("Книги"),
@@ -26,14 +27,14 @@ public enum Tag {
     LEISURE_AND_ENTERTAINMENT("Досуг и развлечения"),
     FOR_SCHOOL_AND_OFFICE("Для школы и офиса"),
     LAPTOPS_AND_COMPUTERS("Ноутбуки и компьютеры"),
-    EVERYTHING_FOR_GAMING("Все для гейминга"),
+    EVERYTHING_FOR_GAMING("Гейминг"),
     SMART_STATION("Умные колонки"),
     HYGIENE("Гигиена"),
     CHEMISTRY("Химия"),
     ZOO_PRODUCTS("Зоотовары"),
     OPTICS("Оптика");
 
-    private String name;
+    private final String name;
 
     Tag(String name) {
         this.name = name;

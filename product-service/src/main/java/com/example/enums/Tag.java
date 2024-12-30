@@ -34,7 +34,7 @@ public enum Tag {
     ZOO_PRODUCTS("Зоотовары"),
     OPTICS("Оптика");
 
-    private String name;
+    private final String name;
 
     Tag(String name) {
         this.name = name;
