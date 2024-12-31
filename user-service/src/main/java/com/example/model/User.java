@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -63,7 +64,7 @@ public class User implements UserDetails {
 
     public User(String username, String password) {
         this.username = username;
-        this.password = password;
+        this.password = new BCryptPasswordEncoder().encode(password);;
         this.createdAt = LocalDateTime.now();
         this.description = "";
         this.role = Role.ROLE_USER;
@@ -79,6 +80,10 @@ public class User implements UserDetails {
 
     public boolean hasUserRole(Role role) {
         return getAuthorities().contains(new SimpleGrantedAuthority(role.name()));
+    }
+
+    public void updateUpdatedAt() {
+        this.updatedAt = LocalDateTime.now();
     }
 
     @Override

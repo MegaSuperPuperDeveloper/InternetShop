@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
@@ -40,8 +41,12 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void updatePasswordById(Long userId, String password) {
-        userRepository.updatePasswordById(userId, password);
+    public void updatePasswordById(Long userId, String password, String newPassword) {
+        User user = userRepository.findById(userId).orElse(null);
+
+        if (user.getPassword().equals(password) && isPasswordCorrect(newPassword)) {
+            userRepository.updatePasswordById(userId, newPassword);
+        }
     }
 
     @Transactional
@@ -59,6 +64,11 @@ public class UserService implements UserDetailsService {
         userRepository.updateDescriptionById(id, description);
     }
 
+    @Transactional
+    public void updateUpdatedAtById(Long id, LocalDateTime updatedAt) {
+        userRepository.updateUpdatedAtById(id, updatedAt);
+    }
+
     // The method is required to retrieve data by the username
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -68,5 +78,11 @@ public class UserService implements UserDetailsService {
         User user = findByUsername(username);
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getAuthorities());
     }
+
+    //region Checking
+    public boolean isPasswordCorrect(String password) {
+        return password.split("").length > 8;
+    }
+    //endregion
 
 }

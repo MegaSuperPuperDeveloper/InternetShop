@@ -55,13 +55,16 @@ public class UserController {
     }
 
     //region UPDATE
-    @PatchMapping("/{userId}/p/{newPassword}")
+
+    @PatchMapping("/{userId}/{password}/p/{newPassword}")
     public ResponseEntity<Void> updatePasswordById(@PathVariable Long userId,
+                                                   @PathVariable String password,
                                                    @PathVariable String newPassword) {
         if (userService.findById(userId) == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        userService.updatePasswordById(userId, newPassword);
+        userService.updatePasswordById(userId, password, newPassword);
+        userService.deleteById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -72,6 +75,7 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         userService.updateUsernameById(userId, newUsername);
+        userService.deleteById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -82,16 +86,18 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         userService.updateRoleById(userId, role);
+        userService.deleteById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PatchMapping
+    @PatchMapping("/{userId}/d{description}")
     public ResponseEntity<Void> updateDescriptionById(@PathVariable Long userId,
                                                       @PathVariable String description) {
         if (userService.findById(userId) == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         userService.updateDescriptionById(userId, description);
+        userService.deleteById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

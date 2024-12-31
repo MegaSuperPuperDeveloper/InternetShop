@@ -30,6 +30,7 @@
         <module>core-service</module>
 		<module>user-service</module>
         <module>product-service</module>
+        <module>gateway-service</module>
     </modules>
 
     <scm>

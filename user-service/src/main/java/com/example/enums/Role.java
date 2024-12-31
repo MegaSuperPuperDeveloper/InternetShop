@@ -14,6 +14,7 @@ public enum Role {
     Role(String name, int hierarchy) {
         this.name = name;
         this.hierarchy = hierarchy;
+
     }
 
 }

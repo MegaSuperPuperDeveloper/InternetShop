@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,5 +31,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("UPDATE User u SET u.description = :description WHERE u.id = :id")
     void updateDescriptionById(Long id, String description);
+
+    @Modifying
+    @Query("UPDATE User u SET u.updatedAt = :updatedAt WHERE u.id = :id")
+    void updateUpdatedAtById(Long id, LocalDateTime updatedAt);
 
 }
