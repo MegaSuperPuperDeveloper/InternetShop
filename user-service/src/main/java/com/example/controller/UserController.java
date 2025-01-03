@@ -17,6 +17,7 @@ public class UserController {
 
     private final UserService userService;
 
+    //region Сделать контроллеры с использованием Authentication authentication
     //region Read
     @GetMapping
     public Iterable<User> getUsers() {
@@ -102,7 +103,6 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // Заменить firstUserId на Authentication authentication
     @PatchMapping("/{firstUserId}/{secondUserId}/r/{role}")
     public ResponseEntity<Void> updateRoleForOtherUserById(Long firstUserId, Long secondUserId, Role role) {
         if (userService.findById(firstUserId) == null || userService.findById(secondUserId) == null) {
@@ -112,6 +112,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    //endregion
     //endregion
 
 }
