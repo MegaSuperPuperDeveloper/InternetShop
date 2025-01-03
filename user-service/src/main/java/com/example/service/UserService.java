@@ -4,22 +4,17 @@ import com.example.enums.Role;
 import com.example.model.User;
 import com.example.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 @AllArgsConstructor
-public class UserService implements UserDetailsService {
+public class UserService{
 
     private final UserRepository userRepository;
 
+    //region READ
     public Iterable<User> findAll() {
         return userRepository.findAll();
     }
@@ -31,6 +26,7 @@ public class UserService implements UserDetailsService {
     public User findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
+    //endregion
 
     public void deleteById(Long userId) {
         userRepository.deleteById(userId);
@@ -40,6 +36,7 @@ public class UserService implements UserDetailsService {
         return userRepository.save(new User(username, password));
     }
 
+    //region UPDATE
     @Transactional
     public void updatePasswordById(Long userId, String password, String newPassword) {
         User user = userRepository.findById(userId).orElse(null);
@@ -65,19 +62,10 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void updateUpdatedAtById(Long id, LocalDateTime updatedAt) {
-        userRepository.updateUpdatedAtById(id, updatedAt);
+    public void updateUpdatedAtById(Long id) {
+        userRepository.updateUpdatedAtById(id, LocalDateTime.now());
     }
-
-    // The method is required to retrieve data by the username
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        if (findByUsername(username) == null) {
-            throw new UsernameNotFoundException(String.format("User '%s' not found", username));
-        }
-        User user = findByUsername(username);
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getAuthorities());
-    }
+    //endregion
 
     //region Checking
     public boolean isPasswordCorrect(String password) {

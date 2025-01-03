@@ -78,14 +78,6 @@ public class User implements UserDetails {
     // public void getProducts();
     // public void getProductById();
 
-    public boolean hasUserRole(Role role) {
-        return getAuthorities().contains(new SimpleGrantedAuthority(role.name()));
-    }
-
-    public void updateUpdatedAt() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singletonList(new SimpleGrantedAuthority(role.name()));

@@ -4,7 +4,7 @@ import com.example.service.ProductService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@RestController("/products")
 @AllArgsConstructor
 public class ProductController {
 

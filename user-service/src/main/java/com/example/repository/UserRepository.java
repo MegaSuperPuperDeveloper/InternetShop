@@ -1,6 +1,7 @@
 package com.example.repository;
 
 import com.example.enums.Role;
+import com.example.enums.Tag;
 import com.example.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -35,5 +36,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("UPDATE User u SET u.updatedAt = :updatedAt WHERE u.id = :id")
     void updateUpdatedAtById(Long id, LocalDateTime updatedAt);
+
+    @Modifying
+    @Query("UPDATE User u SET u.tags = :tags WHERE u.id = :id")
+    void updateTagsById(Long id, Set<Tag> tags);
 
 }

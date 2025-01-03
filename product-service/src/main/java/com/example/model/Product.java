@@ -45,11 +45,12 @@ public class Product {
     @Column(nullable = false)
     private int count;
 
-    public Product(String name, String description, Double price, Tag tag) {
+    public Product(String name, String description, Double price, Set<Tag> tags, int count) {
         this.name = name;
         this.description = description;
         this.price = price;
-        this.tags.add(tag);
+        this.tags = tags;
+        this.count = count;
     }
 
 }

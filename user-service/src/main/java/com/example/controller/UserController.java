@@ -10,19 +10,20 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-@AllArgsConstructor
 @RestController
+@AllArgsConstructor
+@RequestMapping("/users")
 public class UserController {
 
     private final UserService userService;
 
     //region Read
-    @GetMapping("/users")
+    @GetMapping
     public Iterable<User> getUsers() {
         return userService.findAll();
     }
 
-    @GetMapping("/profile/{userId}")
+    @GetMapping("/user/i/{userId}")
     public ResponseEntity<User> getUser(@PathVariable Long userId) {
         if (userService.findById(userId) == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -30,7 +31,7 @@ public class UserController {
         return new ResponseEntity<>(userService.findById(userId), HttpStatus.OK);
     }
 
-    @GetMapping("/profile/{username}")
+    @GetMapping("/user/u/{username}")
     public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
         if (userService.findByUsername(username) == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -64,7 +65,7 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         userService.updatePasswordById(userId, password, newPassword);
-        userService.deleteById(userId);
+        userService.updateUpdatedAtById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -75,7 +76,7 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         userService.updateUsernameById(userId, newUsername);
-        userService.deleteById(userId);
+        userService.updateUpdatedAtById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -86,7 +87,7 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         userService.updateRoleById(userId, role);
-        userService.deleteById(userId);
+        userService.updateUpdatedAtById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -97,7 +98,7 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         userService.updateDescriptionById(userId, description);
-        userService.deleteById(userId);
+        userService.updateUpdatedAtById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
