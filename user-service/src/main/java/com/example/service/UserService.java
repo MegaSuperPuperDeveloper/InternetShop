@@ -37,10 +37,10 @@ public class UserService{
     }
 
     //region UPDATE
+
     @Transactional
     public void updatePasswordById(Long userId, String password, String newPassword) {
         User user = userRepository.findById(userId).orElse(null);
-
         if (user.getPassword().equals(password) && isPasswordCorrect(newPassword)) {
             userRepository.updatePasswordById(userId, newPassword);
         }
@@ -65,6 +65,18 @@ public class UserService{
     public void updateUpdatedAtById(Long id) {
         userRepository.updateUpdatedAtById(id, LocalDateTime.now());
     }
+
+    public void updateRoleForOtherUserById(Long firstUserId, Long secondUserId, Role role) {
+        int firstUserRoleHierarchy = userRepository.findById(firstUserId).get().getRole().getHierarchy();
+        int secondUserRoleHierarchy = userRepository.findById(secondUserId).get().getRole().getHierarchy();
+        int role3 = role.getHierarchy();
+        if (firstUserRoleHierarchy > secondUserRoleHierarchy && firstUserRoleHierarchy > role3) {
+
+            userRepository.updateRoleById(secondUserId, role);
+
+        }
+    }
+
     //endregion
 
     //region Checking

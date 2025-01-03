@@ -57,7 +57,7 @@ public class UserController {
 
     //region UPDATE
 
-    @PatchMapping("/{userId}/{password}/p/{newPassword}")
+    @PatchMapping("/{userId}/p/{currentPassword}/{newPassword}")
     public ResponseEntity<Void> updatePasswordById(@PathVariable Long userId,
                                                    @PathVariable String password,
                                                    @PathVariable String newPassword) {
@@ -99,6 +99,16 @@ public class UserController {
         }
         userService.updateDescriptionById(userId, description);
         userService.updateUpdatedAtById(userId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    // Заменить firstUserId на Authentication authentication
+    @PatchMapping("/{firstUserId}/{secondUserId}/r/{role}")
+    public ResponseEntity<Void> updateRoleForOtherUserById(Long firstUserId, Long secondUserId, Role role) {
+        if (userService.findById(firstUserId) == null || userService.findById(secondUserId) == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        userService.updateRoleForOtherUserById(firstUserId, secondUserId, role);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

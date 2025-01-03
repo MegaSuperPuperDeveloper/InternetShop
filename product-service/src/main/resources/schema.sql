@@ -1,4 +1,4 @@
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
     idProduct SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAM NOT NULL,
@@ -8,12 +8,12 @@ CREATE TABLE products (
     count INT NOT NULL
 );
 
-CREATE TABLE tags (
+CREATE TABLE IF NOT EXISTS tags (
     id SERIAL PRIMARY KEY,
     tag VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE product_tag (
+CREATE TABLE IF NOT EXISTS product_tag (
     user_id BIGINT NOT NULL,
     tag_id BIGINT NOT NULL,
     PRIMARY KEY (user_id, tag_id),
