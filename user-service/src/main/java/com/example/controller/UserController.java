@@ -17,14 +17,13 @@ public class UserController {
 
     private final UserService userService;
 
-    //region Сделать контроллеры с использованием Authentication authentication
     //region Read
     @GetMapping
     public Iterable<User> getUsers() {
         return userService.findAll();
     }
 
-    @GetMapping("/user/i/{userId}")
+    @GetMapping("/i/{userId}")
     public ResponseEntity<User> getUser(@PathVariable Long userId) {
         if (userService.findById(userId) == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -32,7 +31,7 @@ public class UserController {
         return new ResponseEntity<>(userService.findById(userId), HttpStatus.OK);
     }
 
-    @GetMapping("/user/u/{username}")
+    @GetMapping("/u/{username}")
     public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
         if (userService.findByUsername(username) == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -47,6 +46,7 @@ public class UserController {
         return new ResponseEntity<>(userService.save(username, password), HttpStatus.CREATED);
     }
 
+    //region Сделать контроллеры с использованием Authentication authentication
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
         if (userService.findById(userId) == null) {
@@ -60,12 +60,12 @@ public class UserController {
 
     @PatchMapping("/{userId}/p/{currentPassword}/{newPassword}")
     public ResponseEntity<Void> updatePasswordById(@PathVariable Long userId,
-                                                   @PathVariable String password,
+                                                   @PathVariable String currentPassword,
                                                    @PathVariable String newPassword) {
         if (userService.findById(userId) == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        userService.updatePasswordById(userId, password, newPassword);
+        userService.updatePasswordById(userId, currentPassword, newPassword);
         userService.updateUpdatedAtById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }

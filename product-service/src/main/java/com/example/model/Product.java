@@ -6,10 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 @Data
 @Table(name = "products")
 @Entity
@@ -27,7 +26,7 @@ public class Product {
     private String description;
 
     @Column(nullable = false)
-    private double price;
+    private BigDecimal price;
 
     @CreationTimestamp
     @Column(nullable = false)
@@ -37,20 +36,14 @@ public class Product {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "tags", joinColumns = @JoinColumn(name = "id"))
-    @Enumerated(EnumType.STRING)
-    private Set<Tag> tags = new HashSet<>();
-
     @Column(nullable = false)
-    private int count;
+    private Tag tag;
 
-    public Product(String name, String description, Double price, Set<Tag> tags, int count) {
+    public Product(String name, String description, BigDecimal price, Tag tag) {
         this.name = name;
         this.description = description;
         this.price = price;
-        this.tags = tags;
-        this.count = count;
+        this.tag = tag;
     }
 
 }

@@ -66,6 +66,7 @@ public class UserService{
         userRepository.updateUpdatedAtById(id, LocalDateTime.now());
     }
 
+    @Transactional
     public void updateRoleForOtherUserById(Long firstUserId, Long secondUserId, Role role) {
         int firstUserRoleHierarchy = userRepository.findById(firstUserId).get().getRole().getHierarchy();
         int secondUserRoleHierarchy = userRepository.findById(secondUserId).get().getRole().getHierarchy();
@@ -76,7 +77,6 @@ public class UserService{
 
         }
     }
-
     //endregion
 
     //region Checking
