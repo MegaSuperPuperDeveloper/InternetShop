@@ -64,7 +64,8 @@ public class User implements UserDetails {
 
     public User(String username, String password) {
         this.username = username;
-        this.password = new BCryptPasswordEncoder().encode(password);;
+//        this.password = new BCryptPasswordEncoder().encode(password);;
+        this.password = password;
         this.createdAt = LocalDateTime.now();
         this.description = "";
         this.role = Role.ROLE_USER;

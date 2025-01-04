@@ -1,6 +1,7 @@
 package com.example.controller;
 
 import com.example.enums.Role;
+import com.example.enums.Tag;
 import com.example.model.User;
 import com.example.service.UserService;
 import lombok.AllArgsConstructor;
@@ -103,12 +104,23 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PatchMapping("/{firstUserId}/{secondUserId}/r/{role}")
-    public ResponseEntity<Void> updateRoleForOtherUserById(Long firstUserId, Long secondUserId, Role role) {
-        if (userService.findById(firstUserId) == null || userService.findById(secondUserId) == null) {
+    @PatchMapping("/{userId}/add/{tag}")
+    public ResponseEntity<Void> addTagById(@PathVariable Long userId, @PathVariable Tag tag) {
+        if (userService.findById(userId) == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        userService.updateRoleForOtherUserById(firstUserId, secondUserId, role);
+        userService.addTagToUser(userId, tag);
+        userService.updateUpdatedAtById(userId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PatchMapping("/{userId}/remove/{tag}")
+    public ResponseEntity<Void> removeTagById(@PathVariable Long userId, @PathVariable Tag tag) {
+        if (userService.findById(userId) == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        userService.removeTagToUser(userId, tag);
+        userService.updateUpdatedAtById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

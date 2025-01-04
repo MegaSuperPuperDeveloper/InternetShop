@@ -1,12 +1,14 @@
 package com.example.service;
 
 import com.example.enums.Role;
+import com.example.enums.Tag;
 import com.example.model.User;
 import com.example.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -67,16 +69,23 @@ public class UserService{
     }
 
     @Transactional
-    public void updateRoleForOtherUserById(Long firstUserId, Long secondUserId, Role role) {
-        int firstUserRoleHierarchy = userRepository.findById(firstUserId).get().getRole().getHierarchy();
-        int secondUserRoleHierarchy = userRepository.findById(secondUserId).get().getRole().getHierarchy();
-        int role3 = role.getHierarchy();
-        if (firstUserRoleHierarchy > secondUserRoleHierarchy && firstUserRoleHierarchy > role3) {
-
-            userRepository.updateRoleById(secondUserId, role);
-
+    public void addTagToUser(Long userId, Tag tag) {
+        if (!userRepository.findById(userId).get().getTags().contains(tag)) {
+            Set<Tag> tags = userRepository.findById(userId).get().getTags();
+            tags.add(tag);
+            userRepository.updateTagsById(userId, tags);
         }
     }
+
+    @Transactional
+    public void removeTagToUser(Long userId, Tag tag) {
+        if (userRepository.findById(userId).get().getTags().contains(tag)) {
+            Set<Tag> tags = userRepository.findById(userId).get().getTags();
+            tags.remove(tag);
+            userRepository.updateTagsById(userId, tags);
+        }
+    }
+
     //endregion
 
     //region Checking
