@@ -17,9 +17,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
-
-// Реализовать сервис подписок
 
 @Data
 @Entity
@@ -33,6 +30,9 @@ public class User implements UserDetails {
 
     @Column(nullable = false)
     private String username;
+
+    @Column(nullable = false)
+    private String login;
 
     @Column(nullable = false)
     private String password;
@@ -62,22 +62,14 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String description;
 
-    public User(String username, String password) {
+    public User(String username, String login, String password) {
         this.username = username;
-//        this.password = new BCryptPasswordEncoder().encode(password);;
-        this.password = password;
+        this.login = login;
+        this.password = new BCryptPasswordEncoder().encode(password);;
         this.createdAt = LocalDateTime.now();
         this.description = "";
         this.role = Role.ROLE_USER;
     }
-
-    // public void publishNewProduct(String name, String description, int price);
-    // public void deleteProduct(String name);
-    // public void updateProductPrice(String name, int price);
-    // public void updateProductName(String name, String newName);
-    // public void updateProductDescription(String name, String description);
-    // public void getProducts();
-    // public void getProductById();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

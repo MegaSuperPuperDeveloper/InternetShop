@@ -5,9 +5,11 @@ import com.example.enums.Tag;
 import com.example.model.User;
 import com.example.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -21,12 +23,16 @@ public class UserService{
         return userRepository.findAll();
     }
 
-    public User findById(Long userId) {
-        return userRepository.findById(userId).orElse(null);
+    public Optional<User> findById(Long userId) {
+        return userRepository.findById(userId);
     }
 
-    public User findByUsername(String username) {
+    public Iterable<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    public Optional<User> findByLogin(String login) {
+        return userRepository.findByLogin(login);
     }
     //endregion
 
@@ -34,8 +40,11 @@ public class UserService{
         userRepository.deleteById(userId);
     }
 
-    public User save(String username, String password) {
-        return userRepository.save(new User(username, password));
+    public User save(String username, String login, String password) {
+        if (!isLoginBusy(login)) {
+            return userRepository.save(new User(username, login, password));
+        }
+        return null;
     }
 
     //region UPDATE
@@ -51,6 +60,11 @@ public class UserService{
     @Transactional
     public void updateUsernameById(Long userId, String username) {
         userRepository.updateUsernameById(userId, username);
+    }
+
+    @Transactional
+    public void updateLoginById(Long userId, String login) {
+        userRepository.updateLoginById(userId, login);
     }
 
     @Transactional
@@ -91,6 +105,10 @@ public class UserService{
     //region Checking
     public boolean isPasswordCorrect(String password) {
         return password.split("").length > 8;
+    }
+
+    public boolean isLoginBusy(String login) {
+        return userRepository.findByLogin(login).isPresent();
     }
     //endregion
 
