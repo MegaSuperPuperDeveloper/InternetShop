@@ -29,10 +29,10 @@ public class User implements UserDetails {
     private Long id;
 
     @Column(nullable = false)
-    private String username;
+    private String displayedUsername;
 
     @Column(nullable = false)
-    private String login;
+    private String username;
 
     @Column(nullable = false)
     private String password;
@@ -62,9 +62,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String description;
 
-    public User(String username, String login, String password) {
+    public User(String displayedUsername, String username, String password) {
+        this.displayedUsername = displayedUsername;
         this.username = username;
-        this.login = login;
         this.password = new BCryptPasswordEncoder().encode(password);;
         this.createdAt = LocalDateTime.now();
         this.description = "";

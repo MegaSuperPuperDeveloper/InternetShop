@@ -5,7 +5,6 @@ import com.example.enums.Tag;
 import com.example.model.User;
 import com.example.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
@@ -27,12 +26,12 @@ public class UserService{
         return userRepository.findById(userId);
     }
 
-    public Iterable<User> findByUsername(String username) {
+    public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
-    public Optional<User> findByLogin(String login) {
-        return userRepository.findByLogin(login);
+    public Iterable<User> findByDisplayedUsername(String displayedUsername) {
+        return userRepository.findByDisplayedUsername(displayedUsername);
     }
     //endregion
 
@@ -40,11 +39,8 @@ public class UserService{
         userRepository.deleteById(userId);
     }
 
-    public User save(String username, String login, String password) {
-        if (!isLoginBusy(login)) {
-            return userRepository.save(new User(username, login, password));
-        }
-        return null;
+    public User save(String username, String displayedUsername, String password) {
+        return userRepository.save(new User(displayedUsername, username, password));
     }
 
     //region UPDATE
@@ -105,10 +101,6 @@ public class UserService{
     //region Checking
     public boolean isPasswordCorrect(String password) {
         return password.split("").length > 8;
-    }
-
-    public boolean isLoginBusy(String login) {
-        return userRepository.findByLogin(login).isPresent();
     }
     //endregion
 

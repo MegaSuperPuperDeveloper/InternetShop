@@ -14,9 +14,9 @@ import java.util.Set;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Iterable<User> findByUsername(String username);
+    Iterable<User> findByDisplayedUsername(String displayedUsername);
 
-    Optional<User> findByLogin(String login);
+    Optional<User> findByUsername(String username);
 
     @Modifying
     @Query("UPDATE User u SET u.password = :password WHERE u.id = :id")
@@ -27,8 +27,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     void updateUsernameById(Long id, String username);
 
     @Modifying
-    @Query("UPDATE User u SET u.login = :login WHERE u.id = :id")
-    void updateLoginById(Long id, String login);
+    @Query("UPDATE User u SET u.displayedUsername = :displayedUsername WHERE u.id = :id")
+    void updateLoginById(Long id, String displayedUsername);
 
     @Modifying
     @Query("UPDATE User u SET u.role = :role WHERE u.id = :id")

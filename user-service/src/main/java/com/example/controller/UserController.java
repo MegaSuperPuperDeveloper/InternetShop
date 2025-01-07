@@ -27,17 +27,17 @@ public class UserController {
         return userService.findAll();
     }
 
-    @GetMapping("/u/{username}")
-    public Iterable<User> getUsersByUsername(@PathVariable String username) {
-        return userService.findByUsername(username);
+    @GetMapping("/u/{displayedUsername}")
+    public ResponseEntity<Iterable<User>> getByDisplayedUsername(@PathVariable String displayedUsername) {
+        return new ResponseEntity<>(userService.findByDisplayedUsername(displayedUsername), HttpStatus.OK);
     }
 
-    @GetMapping("/u/{login}")
-    public ResponseEntity<Optional<User>> getUserByLogin(@PathVariable String login) {
-        if (userService.findByLogin(login).isEmpty()) {
+    @GetMapping("/l/{username}")
+    public ResponseEntity<Optional<User>> getUserByLogin(@PathVariable String username) {
+        if (userService.findByUsername(username).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        Optional<User> user = userService.findByLogin(login);
+        Optional<User> user = userService.findByUsername(username);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -50,11 +50,14 @@ public class UserController {
     }
     //endregion
 
-    @PostMapping("/{username}/{login}/{password}")
-    public ResponseEntity<User> createUser(@PathVariable String username,
-                                           @PathVariable String password,
-                                           @PathVariable String login) {
-        return new ResponseEntity<>(userService.save(username, login, password), HttpStatus.CREATED);
+    @PostMapping("/{displayedUsername}/{username}/{password}")
+    public ResponseEntity<User> createUser(@PathVariable String displayedUsername,
+                                           @PathVariable String username,
+                                           @PathVariable String password) {
+        if (userService.findByUsername(username).isEmpty()) {
+            return new ResponseEntity<>(userService.save(username, displayedUsername, password), HttpStatus.CREATED);
+        }
+        return new ResponseEntity<>(HttpStatus.CONFLICT);
     }
 
     //region Сделать контроллеры с использованием Authentication authentication
