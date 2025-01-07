@@ -57,7 +57,7 @@ public class User implements UserDetails {
 
     @UpdateTimestamp
     @Column(nullable = false)
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt; // Либо добавить текст к изменению либо удалить полностью
 
     @Column(nullable = false)
     private String description;
