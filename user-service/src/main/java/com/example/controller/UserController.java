@@ -9,13 +9,15 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
-@RestController
+@Controller
 @AllArgsConstructor
 @RequestMapping("/users")
 public class UserController {
@@ -24,30 +26,31 @@ public class UserController {
 
     //region Read
     @GetMapping
-    public Iterable<UserDTO> getUsers() {
-        return userService.findAll();
+    public String getUsers(Model model) {
+        userService.waitASecond();
+        model.addAttribute("users", userService.findAll());
+        return "users";
     }
 
     @GetMapping("/u/{displayedUsername}")
-    public ResponseEntity<Iterable<UserDTO>> getByDisplayedUsername(@PathVariable String displayedUsername) {
+    public String getByDisplayedUsername(@PathVariable String displayedUsername, Model model) {
         userService.waitASecond();
-        return new ResponseEntity<>(userService.findByDisplayedUsername(displayedUsername), HttpStatus.OK);
+        model.addAttribute("users", userService.findByDisplayedUsername(displayedUsername));
+        return "users";
     }
 
     @GetMapping("/l/{username}")
-    public ResponseEntity<Optional<UserDTO>> getUserByLogin(@PathVariable String username) {
+    public String getUserByLogin(@PathVariable String username, Model model) {
         userService.waitASecond();
-        Optional<UserDTO> user = userService.findByUsername(username);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        model.addAttribute("users", userService.findByUsername(username).stream().collect(Collectors.toList()));
+        return "users";
     }
 
     @GetMapping("/i/{userId}")
-    public ResponseEntity<Optional<UserDTO>> getUserById(@PathVariable Long userId) {
+    public String getUserById(@PathVariable Long userId, Model model) {
         userService.waitASecond();
-        if (userService.findById(userId).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(userService.findById(userId), HttpStatus.OK);
+        model.addAttribute("users", userService.findById(userId).stream().collect(Collectors.toList()));
+        return "users";
     }
     //endregion
 
