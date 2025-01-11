@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -14,10 +13,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     @Query("SELECT p FROM Product p WHERE p.name = :name")
     List<Product> findProductByName(String name);
-
-    @Modifying
-    @Query("UPDATE Product p SET p.updatedAt = :updatedAt WHERE p.id = :id")
-    void updateUpdatedAt(Long id, LocalDateTime updatedAt);
 
     @Modifying
     @Query("UPDATE Product p SET p.name = :name WHERE p.id = :id")

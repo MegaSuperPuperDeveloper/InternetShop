@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -22,8 +23,8 @@ public class ProductService {
         return productRepository.findAll();
     }
 
-    public Product getProduct(Long id) {
-        return productRepository.findById(id).get();
+    public Optional<Product> findById(Long id) {
+        return productRepository.findById(id);
     }
 
     public List<Product> getProductsByName(String name) {
@@ -40,11 +41,6 @@ public class ProductService {
     }
 
     //region UPDATE
-    @Transactional
-    public void updateUpdatedAt(Long id) {
-        productRepository.updateUpdatedAt(id, LocalDateTime.now());
-    }
-
     @Transactional
     public void updateNameById(Long id, String name) {
         productRepository.updateNameById(id, name);
@@ -63,6 +59,16 @@ public class ProductService {
     @Transactional
     public void updateTagById(Long id, Tag tag) {
         productRepository.updateTagById(id, tag);
+    }
+    //endregion
+
+    //region Other functions
+    public void waitASecond() {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            System.out.println("Не удалось подождать секунду!");
+        }
     }
     //endregion
 

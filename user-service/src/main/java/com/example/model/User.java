@@ -13,10 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @Entity
@@ -45,19 +42,9 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Tag> tags = new HashSet<>();
 
-    // Список продаваемых товаров
-    // private List<Product> listProductForSale;
-
-    // Список купленных товаров
-    // private List<Product> listBoughtProduct;
-
     @CreationTimestamp
     @Column(nullable = false)
     private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(nullable = false)
-    private LocalDateTime updatedAt; // Либо добавить текст к изменению либо удалить полностью
 
     @Column(nullable = false)
     private String description;

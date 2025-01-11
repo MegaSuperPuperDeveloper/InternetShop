@@ -32,10 +32,6 @@ public class Product {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(nullable = false)
-    private LocalDateTime updatedAt;
-
     @Column(nullable = false)
     private Tag tag;
 

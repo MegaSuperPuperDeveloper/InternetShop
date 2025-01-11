@@ -98,7 +98,6 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         userService.updatePasswordById(userId, currentPassword, newPassword);
-        userService.updateUpdatedAtById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -113,7 +112,6 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         userService.updateDisplayedUsernameById(userId, newUsername);
-        userService.updateUpdatedAtById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -128,7 +126,6 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         userService.updateLoginById(userId, newLogin);
-        userService.updateUpdatedAtById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -136,20 +133,19 @@ public class UserController {
     public ResponseEntity<Void> updateRoleById(@AuthenticationPrincipal User user,
                                                @PathVariable Long userId, @PathVariable Role role) {
         userService.waitASecond();
-        if (userService.findById(userId).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        if (user.getRole().getHierarchy() <= role.getHierarchy()) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
-        if (role == userService.findById(userId).get().role()) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
-        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
+//        if (userService.findById(userId).isEmpty()) {
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//        if (user.getRole().getHierarchy() <= role.getHierarchy()) {
+//            return new ResponseEntity<>(HttpStatus.CONFLICT);
+//        }
+//        if (role == userService.findById(userId).get().role()) {
+//            return new ResponseEntity<>(HttpStatus.CONFLICT);
+//        }
+//        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
+//            return new ResponseEntity<>(HttpStatus.CONFLICT);
+//        }
         userService.updateRoleById(userId, role);
-        userService.updateUpdatedAtById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -164,7 +160,6 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         userService.updateDescriptionById(userId, description);
-        userService.updateUpdatedAtById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -180,7 +175,6 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         userService.addTagToUser(userId, tag);
-        userService.updateUpdatedAtById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -195,7 +189,6 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         userService.removeTagToUser(userId, tag);
-        userService.updateUpdatedAtById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

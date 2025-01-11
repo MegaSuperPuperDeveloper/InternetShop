@@ -84,11 +84,6 @@ public class UserService{
     }
 
     @Transactional
-    public void updateUpdatedAtById(Long id) {
-        userRepository.updateUpdatedAtById(id, LocalDateTime.now());
-    }
-
-    @Transactional
     public void addTagToUser(Long userId, Tag tag) {
         if (!userRepository.findById(userId).get().getTags().contains(tag)) {
             Set<Tag> tags = userRepository.findById(userId).get().getTags();
