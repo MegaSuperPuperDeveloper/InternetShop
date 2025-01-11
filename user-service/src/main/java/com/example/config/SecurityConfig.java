@@ -25,7 +25,8 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(source -> source
-                    .requestMatchers(HttpMethod.GET).permitAll()
+                    .requestMatchers(HttpMethod.GET, "/users").hasRole("OWNER")
+                    .requestMatchers(HttpMethod.GET, "/users/**").permitAll()
                     .requestMatchers(HttpMethod.POST).permitAll()
                     .anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults())

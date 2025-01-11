@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import com.example.dto.UserDTO;
 import com.example.enums.Role;
 import com.example.enums.Tag;
 import com.example.model.User;
@@ -23,26 +24,26 @@ public class UserController {
 
     //region Read
     @GetMapping
-    public Iterable<User> getUsers() {
+    public Iterable<UserDTO> getUsers() {
         return userService.findAll();
     }
 
     @GetMapping("/u/{displayedUsername}")
-    public ResponseEntity<Iterable<User>> getByDisplayedUsername(@PathVariable String displayedUsername) {
+    public ResponseEntity<Iterable<UserDTO>> getByDisplayedUsername(@PathVariable String displayedUsername) {
+        userService.waitASecond();
         return new ResponseEntity<>(userService.findByDisplayedUsername(displayedUsername), HttpStatus.OK);
     }
 
     @GetMapping("/l/{username}")
-    public ResponseEntity<Optional<User>> getUserByLogin(@PathVariable String username) {
-        if (userService.findByUsername(username).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        Optional<User> user = userService.findByUsername(username);
+    public ResponseEntity<Optional<UserDTO>> getUserByLogin(@PathVariable String username) {
+        userService.waitASecond();
+        Optional<UserDTO> user = userService.findByUsername(username);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
     @GetMapping("/i/{userId}")
-    public ResponseEntity<Optional<User>> getUserById(@PathVariable Long userId) {
+    public ResponseEntity<Optional<UserDTO>> getUserById(@PathVariable Long userId) {
+        userService.waitASecond();
         if (userService.findById(userId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -50,38 +51,51 @@ public class UserController {
     }
     //endregion
 
-    @PostMapping("/{displayedUsername}/{username}/{password}")
+    @PostMapping("/{displayedUsername}/{username}/{password}/{passwordRetry}")
     public ResponseEntity<User> createUser(@PathVariable String displayedUsername,
                                            @PathVariable String username,
-                                           @PathVariable String password) {
-        if (userService.findByUsername(username).isEmpty()) {
-            return new ResponseEntity<>(userService.save(username, displayedUsername, password), HttpStatus.CREATED);
+                                           @PathVariable String password,
+                                           @PathVariable String passwordRetry) {
+        userService.waitASecond();
+        if (userService.findByUsername(username).isPresent()) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
-        return new ResponseEntity<>(HttpStatus.CONFLICT);
+        if (!password.equals(passwordRetry)) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        return new ResponseEntity<>(userService.save(username, displayedUsername, password), HttpStatus.CREATED);
     }
 
-    //region Сделать контроллеры с использованием Authentication authentication
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long userId, @AuthenticationPrincipal User user) {
+    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal User user, @PathVariable Long userId) {
+        userService.waitASecond();
         if (userService.findById(userId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-//        if (!user.getRole().getHierarchy() > userService.findById(userId).getRole().getHierarchy()) {
-//            userService.deleteById(userId);
-//            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-//        }
-        userService.deleteById(userId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        if (user.getRole().getHierarchy() > userService.findById(userId).get().role().getHierarchy()) {
+            userService.deleteById(userId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        if (user.getId().equals(userId)) {
+            userService.deleteById(userId);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
     //region UPDATE
 
     @PatchMapping("/{userId}/p/{currentPassword}/{newPassword}")
-    public ResponseEntity<Void> updatePasswordById(@PathVariable Long userId,
+    public ResponseEntity<Void> updatePasswordById(@AuthenticationPrincipal User user,
+                                                   @PathVariable Long userId,
                                                    @PathVariable String currentPassword,
                                                    @PathVariable String newPassword) {
+        userService.waitASecond();
         if (userService.findById(userId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (!user.getId().equals(userId)) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         userService.updatePasswordById(userId, currentPassword, newPassword);
         userService.updateUpdatedAtById(userId);
@@ -89,21 +103,29 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}/u/{newUsername}")
-    public ResponseEntity<Void> updateUsernameById(@PathVariable Long userId,
-                                                   @PathVariable String newUsername) {
+    public ResponseEntity<Void> updateUsernameById(@AuthenticationPrincipal User user,
+                                                   @PathVariable Long userId, @PathVariable String newUsername) {
+        userService.waitASecond();
         if (userService.findById(userId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        userService.updateUsernameById(userId, newUsername);
+        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy() && !user.getId().equals(userId)) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        userService.updateDisplayedUsernameById(userId, newUsername);
         userService.updateUpdatedAtById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PatchMapping("/{userId}/u/{newLogin}")
-    public ResponseEntity<Void> updateLoginById(@PathVariable Long userId,
-                                                @PathVariable String newLogin) {
+    @PatchMapping("/{userId}/l/{newLogin}")
+    public ResponseEntity<Void> updateLoginById(@AuthenticationPrincipal User user,
+                                                @PathVariable Long userId, @PathVariable String newLogin) {
+        userService.waitASecond();
         if (userService.findById(userId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (!user.getId().equals(userId)) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         userService.updateLoginById(userId, newLogin);
         userService.updateUpdatedAtById(userId);
@@ -111,31 +133,51 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}/r/{role}")
-    public ResponseEntity<Void> updateRoleById(@PathVariable Long userId,
-                                                   @PathVariable Role role) {
+    public ResponseEntity<Void> updateRoleById(@AuthenticationPrincipal User user,
+                                               @PathVariable Long userId, @PathVariable Role role) {
+        userService.waitASecond();
         if (userService.findById(userId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (user.getRole().getHierarchy() <= role.getHierarchy()) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        if (role == userService.findById(userId).get().role()) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         userService.updateRoleById(userId, role);
         userService.updateUpdatedAtById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PatchMapping("/{userId}/d{description}")
-    public ResponseEntity<Void> updateDescriptionById(@PathVariable Long userId,
-                                                      @PathVariable String description) {
+    @PatchMapping("/{userId}/d/{description}")
+    public ResponseEntity<Void> updateDescriptionById(@AuthenticationPrincipal User user,
+                                                      @PathVariable Long userId,  @PathVariable String description) {
+        userService.waitASecond();
         if (userService.findById(userId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy() && !user.getId().equals(userId)) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         userService.updateDescriptionById(userId, description);
         userService.updateUpdatedAtById(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    // Решить проблему с тегами
     @PatchMapping("/{userId}/add/{tag}")
-    public ResponseEntity<Void> addTagById(@PathVariable Long userId, @PathVariable Tag tag) {
+    public ResponseEntity<Void> addTagById(@AuthenticationPrincipal User user,
+                                           @PathVariable Long userId, @PathVariable Tag tag) {
+        userService.waitASecond();
         if (userService.findById(userId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (!user.getId().equals(userId)) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         userService.addTagToUser(userId, tag);
         userService.updateUpdatedAtById(userId);
@@ -143,9 +185,14 @@ public class UserController {
     }
 
     @PatchMapping("/{userId}/remove/{tag}")
-    public ResponseEntity<Void> removeTagById(@PathVariable Long userId, @PathVariable Tag tag) {
+    public ResponseEntity<Void> removeTagById(@AuthenticationPrincipal User user,
+                                              @PathVariable Long userId, @PathVariable Tag tag) {
+        userService.waitASecond();
         if (userService.findById(userId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (!user.getId().equals(userId)) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         userService.removeTagToUser(userId, tag);
         userService.updateUpdatedAtById(userId);

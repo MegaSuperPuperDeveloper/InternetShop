@@ -8,13 +8,14 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    Iterable<User> findByDisplayedUsername(String displayedUsername);
+    List<User> findByDisplayedUsername(String displayedUsername);
 
     Optional<User> findByUsername(String username);
 
@@ -24,11 +25,11 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Modifying
     @Query("UPDATE User u SET u.username = :username WHERE u.id = :id")
-    void updateUsernameById(Long id, String username);
+    void updateLoginById(Long id, String username);
 
     @Modifying
     @Query("UPDATE User u SET u.displayedUsername = :displayedUsername WHERE u.id = :id")
-    void updateLoginById(Long id, String displayedUsername);
+    void updateDisplayedUsernameById(Long id, String displayedUsername);
 
     @Modifying
     @Query("UPDATE User u SET u.role = :role WHERE u.id = :id")

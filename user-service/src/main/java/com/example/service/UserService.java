@@ -1,5 +1,7 @@
 package com.example.service;
 
+import com.example.dto.UserDTO;
+import com.example.dto.UserMapper;
 import com.example.enums.Role;
 import com.example.enums.Tag;
 import com.example.model.User;
@@ -10,28 +12,36 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class UserService{
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    //region READ
-    public Iterable<User> findAll() {
-        return userRepository.findAll();
+    //region
+    public Iterable<UserDTO> findAll() {
+        return userRepository.findAll().stream()
+                .map(userMapper::mapToDTO)
+                .collect(Collectors.toList());
     }
 
-    public Optional<User> findById(Long userId) {
-        return userRepository.findById(userId);
+    public Optional<UserDTO> findById(Long userId) {
+        return userRepository.findById(userId)
+                .map(userMapper::mapToDTO);
     }
 
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
+    public Optional<UserDTO> findByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .map(userMapper::mapToDTO);
     }
 
-    public Iterable<User> findByDisplayedUsername(String displayedUsername) {
-        return userRepository.findByDisplayedUsername(displayedUsername);
+    public Iterable<UserDTO> findByDisplayedUsername(String displayedUsername) {
+        return userRepository.findByDisplayedUsername(displayedUsername).stream()
+                .map(userMapper::mapToDTO)
+                .collect(Collectors.toList());
     }
     //endregion
 
@@ -40,7 +50,7 @@ public class UserService{
     }
 
     public User save(String username, String displayedUsername, String password) {
-        return userRepository.save(new User(displayedUsername, username, password));
+        return userRepository.save(new User(displayedUsername, username.toLowerCase(), password));
     }
 
     //region UPDATE
@@ -54,8 +64,8 @@ public class UserService{
     }
 
     @Transactional
-    public void updateUsernameById(Long userId, String username) {
-        userRepository.updateUsernameById(userId, username);
+    public void updateDisplayedUsernameById(Long userId, String username) {
+        userRepository.updateDisplayedUsernameById(userId, username);
     }
 
     @Transactional
@@ -98,9 +108,21 @@ public class UserService{
 
     //endregion
 
-    //region Checking
+    //region Other functions
     public boolean isPasswordCorrect(String password) {
         return password.split("").length > 8;
+    }
+
+    public void waitASecond() {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            System.out.println("Не удалось подождать секунду!");
+        }
+    }
+
+    public Optional<User> findByUsernameForCustomUserDetailsService(String username) {
+        return userRepository.findByUsername(username);
     }
     //endregion
 
