@@ -12,9 +12,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 @Controller
@@ -66,7 +63,8 @@ public class UserController {
         if (!password.equals(passwordRetry)) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
-        return new ResponseEntity<>(userService.save(username, displayedUsername, password), HttpStatus.CREATED);
+        userService.save(username, displayedUsername, password);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{userId}")
@@ -139,15 +137,15 @@ public class UserController {
         if (userService.findById(userId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        if (user.getRole().getHierarchy() <= role.getHierarchy()) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
-        if (role == userService.findById(userId).get().role()) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
-        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
+//        if (user.getRole().getHierarchy() <= role.getHierarchy()) {
+//            return new ResponseEntity<>(HttpStatus.CONFLICT);
+//        }
+//        if (role == userService.findById(userId).get().role()) {
+//            return new ResponseEntity<>(HttpStatus.CONFLICT);
+//        }
+//        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
+//            return new ResponseEntity<>(HttpStatus.CONFLICT);
+//        }
         userService.updateRoleById(userId, role);
         return new ResponseEntity<>(HttpStatus.OK);
     }

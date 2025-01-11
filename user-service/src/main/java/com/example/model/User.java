@@ -42,6 +42,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Tag> tags = new HashSet<>();
 
+    @Column(nullable = false)
     private String createdAt;
 
     @Column(nullable = false)

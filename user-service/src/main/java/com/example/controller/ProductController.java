@@ -9,13 +9,13 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-@RestController
+@Controller
 @AllArgsConstructor
 @RequestMapping("/products")
 public class ProductController {
@@ -25,26 +25,24 @@ public class ProductController {
 
     //region READ
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
-        return new ResponseEntity<>(productService.getProducts(), HttpStatus.OK);
+    public String getAllProducts(Model model) {
+        productService.waitASecond();
+        model.addAttribute("products", productService.getProducts());
+        return "products";
     }
 
     @GetMapping("/i/{productId}")
-    public ResponseEntity<Optional<Product>> findById(@PathVariable Long productId) {
+    public String findById(@PathVariable Long productId, Model model) {
         productService.waitASecond();
-        if (productService.findById(productId).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(productService.findById(productId), HttpStatus.OK);
+        model.addAttribute("products", productService.findById(productId).stream().collect(Collectors.toList()));
+        return "products";
     }
 
     @GetMapping("/u/{name}")
-    public ResponseEntity<List<Product>> getProductByProductId(@PathVariable String name) {
+    public String getProductByName(@PathVariable String name, Model model) {
         productService.waitASecond();
-        if (productService.getProductsByName(name).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(productService.getProductsByName(name), HttpStatus.OK);
+        model.addAttribute("products", productService.getProductsByName(name));
+        return "products";
     }
     //endregion
 
@@ -55,7 +53,7 @@ public class ProductController {
                                               @PathVariable BigDecimal price,
                                               @PathVariable Tag tag) {
         productService.waitASecond();
-        return new ResponseEntity<>(productService.addProduct(name, description, price, tag, user.getUsername(), user.getId()), HttpStatus.CREATED);
+        return new ResponseEntity<>(productService.addProduct(name, description, price, tag, user.getDisplayedUsername(), user.getId()), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{productId}")

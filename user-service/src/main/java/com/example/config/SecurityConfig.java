@@ -29,6 +29,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/users/l/**").hasRole("OWNER")
                     .requestMatchers(HttpMethod.GET, "/users/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/products").permitAll()
                     .requestMatchers(HttpMethod.POST, "/users/**").permitAll()
                     .anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults())

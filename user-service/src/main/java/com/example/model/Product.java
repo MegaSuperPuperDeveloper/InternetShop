@@ -28,17 +28,16 @@ public class Product {
     @Column(nullable = false)
     private BigDecimal price;
 
-    @CreationTimestamp
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private String createdAt;
 
     @Column(nullable = false)
     private Tag tag;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "author_name")
     private String authorName;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "author_id")
     private Long authorId;
 
     public Product(String name, String description, BigDecimal price, Tag tag, String authorName, Long authorId) {
@@ -46,8 +45,15 @@ public class Product {
         this.description = description;
         this.price = price;
         this.tag = tag;
+        this.createdAt = createdAt();
         this.authorName = authorName;
         this.authorId = authorId;
+    }
+
+    public String createdAt() {
+        String[] array = LocalDateTime.now().toString().split("T");
+        array = array[1].split("\\.");
+        return array[0] + ", " + array[1];
     }
 
 }

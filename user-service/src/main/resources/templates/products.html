@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products List</title>
+    <link rel="stylesheet" href="/users.css">
+</head>
+<body>
+
+<h1>Products List</h1>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Price</th>
+        <th>Date of creation</th>
+        <th>Tag</th>
+        <th>Owner's name</th>
+        <th>Owner's id</th>
+    </tr>
+    <tr th:each="p : ${products}">
+        <td th:text="${p.id}"></td>
+        <td th:text="${p.name}"></td>
+        <td th:text="${p.description}"></td>
+        <td th:text="${p.price}"></td>
+        <td th:text="${p.createdAt}"></td>
+        <td th:text="${p.tag}"></td>
+        <td th:text="${p.authorName}"></td>
+        <td th:text="${p.authorId}"></td>
+    </tr>
+</table>
+
+</body>
+</html>
