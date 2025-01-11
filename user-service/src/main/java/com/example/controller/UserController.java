@@ -51,6 +51,30 @@ public class UserController {
     }
     //endregion
 
+//    @GetMapping ("/register")
+//    public String createUser(Model model, User user) {
+//        userService.waitASecond();
+//        model.addAttribute("user", new User());
+//        return "addUser";
+//    }
+//
+//    @PostMapping("/register")
+//    public String createUser(@ModelAttribute User user,
+//                             @RequestParam String passwordRetry,
+//                             Model model) {
+//        userService.waitASecond();
+//        if (userService.findByUsername(user.getUsername()).isPresent()) {
+//            model.addAttribute("error", "User with this username already exists.");
+//            return "addUser";
+//        }
+//        if (!user.getPassword().equals(passwordRetry)) {
+//            model.addAttribute("error", "Passwords do not match.");
+//            return "addUser"; // Возвращаем форму с ошибкой
+//        }
+//        userService.save(user.getUsername(), user.getDisplayedUsername(), user.getPassword());
+//        return "redirect:/users/i/1";
+//    }
+
     @PostMapping("/{displayedUsername}/{username}/{password}/{passwordRetry}")
     public ResponseEntity<User> createUser(@PathVariable String displayedUsername,
                                            @PathVariable String username,
