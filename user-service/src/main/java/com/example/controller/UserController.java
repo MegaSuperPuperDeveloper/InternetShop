@@ -133,18 +133,18 @@ public class UserController {
     public ResponseEntity<Void> updateRoleById(@AuthenticationPrincipal User user,
                                                @PathVariable Long userId, @PathVariable Role role) {
         userService.waitASecond();
-//        if (userService.findById(userId).isEmpty()) {
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-//        if (user.getRole().getHierarchy() <= role.getHierarchy()) {
-//            return new ResponseEntity<>(HttpStatus.CONFLICT);
-//        }
-//        if (role == userService.findById(userId).get().role()) {
-//            return new ResponseEntity<>(HttpStatus.CONFLICT);
-//        }
-//        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
-//            return new ResponseEntity<>(HttpStatus.CONFLICT);
-//        }
+        if (userService.findById(userId).isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (user.getRole().getHierarchy() <= role.getHierarchy()) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        if (role == userService.findById(userId).get().role()) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
+        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
         userService.updateRoleById(userId, role);
         return new ResponseEntity<>(HttpStatus.OK);
     }

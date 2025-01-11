@@ -32,8 +32,8 @@ public class ProductService {
     }
     //endregion
 
-    public Product addProduct(String name, String description, BigDecimal price, Tag tag) {
-        return productRepository.save(new Product(name, description, price, tag));
+    public Product addProduct(String name, String description, BigDecimal price, Tag tag, String authorName, Long authorId) {
+        return productRepository.save(new Product(name, description, price, tag, authorName, authorId));
     }
 
     public void deleteProductById(Long id) {

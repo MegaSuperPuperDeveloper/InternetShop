@@ -2,10 +2,13 @@ package com.example.controller;
 
 import com.example.enums.Tag;
 import com.example.model.Product;
+import com.example.model.User;
 import com.example.service.ProductService;
+import com.example.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -18,6 +21,7 @@ import java.util.Optional;
 public class ProductController {
 
     private final ProductService productService;
+    private final UserService userService;
 
     //region READ
     @GetMapping
@@ -45,19 +49,29 @@ public class ProductController {
     //endregion
 
     @PostMapping("/{name}/{description}/{price}/{tag}")
-    public ResponseEntity<Product> addProduct(@PathVariable String name,
+    public ResponseEntity<Product> addProduct(@AuthenticationPrincipal User user,
+                                              @PathVariable String name,
                                               @PathVariable String description,
                                               @PathVariable BigDecimal price,
                                               @PathVariable Tag tag) {
         productService.waitASecond();
-        return new ResponseEntity<>(productService.addProduct(name, description, price, tag), HttpStatus.CREATED);
+        return new ResponseEntity<>(productService.addProduct(name, description, price, tag, user.getUsername(), user.getId()), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{productId}")
-    public ResponseEntity<Product> deleteProduct(@PathVariable Long productId) {
+    public ResponseEntity<Product> deleteProduct(@AuthenticationPrincipal User user, @PathVariable Long productId) {
         productService.waitASecond();
         if (productService.findById(productId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        if (!productService.findById(productId).get().getAuthorId().equals(user.getId())) {
+
+            int owner = userService.findById(productService.findById(productId).get().getAuthorId()).get().role().getHierarchy();
+            int userWhoWantsDeleteProduct = userService.findById(user.getId()).get().role().getHierarchy();
+
+            if (userWhoWantsDeleteProduct <= owner) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
         }
         productService.deleteProductById(productId);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -65,7 +79,8 @@ public class ProductController {
 
     //region UPDATE
     @PatchMapping("/{productId}/n/{name}")
-    public ResponseEntity<Void> updateNameById(@PathVariable Long productId, @PathVariable String name) {
+    public ResponseEntity<Void> updateNameById(@AuthenticationPrincipal User user,
+                                               @PathVariable Long productId, @PathVariable String name) {
         productService.waitASecond();
         if (productService.findById(productId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -75,7 +90,8 @@ public class ProductController {
     }
 
     @PatchMapping("/{productId}/d/{description}")
-    public ResponseEntity<Void> updateDescriptionById(@PathVariable Long productId, @PathVariable String description) {
+    public ResponseEntity<Void> updateDescriptionById(@AuthenticationPrincipal User user,
+                                                      @PathVariable Long productId, @PathVariable String description) {
         productService.waitASecond();
         if (productService.findById(productId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -85,7 +101,8 @@ public class ProductController {
     }
 
     @PatchMapping("/{productId}/p/{price}")
-    public ResponseEntity<Void> updatePriceById(@PathVariable Long productId, @PathVariable double price) {
+    public ResponseEntity<Void> updatePriceById(@AuthenticationPrincipal User user,
+                                                @PathVariable Long productId, @PathVariable double price) {
         productService.waitASecond();
         if (productService.findById(productId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -95,7 +112,8 @@ public class ProductController {
     }
 
     @PatchMapping("/{productId}/t/{tag}")
-    public ResponseEntity<Void> updateTagById(@PathVariable Long productId, @PathVariable Tag tag) {
+    public ResponseEntity<Void> updateTagById(@AuthenticationPrincipal User user,
+                                              @PathVariable Long productId, @PathVariable Tag tag) {
         productService.waitASecond();
         if (productService.findById(productId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

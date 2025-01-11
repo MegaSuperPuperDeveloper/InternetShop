@@ -35,11 +35,19 @@ public class Product {
     @Column(nullable = false)
     private Tag tag;
 
-    public Product(String name, String description, BigDecimal price, Tag tag) {
+    @Column(nullable = false)
+    private String authorName;
+
+    @Column(nullable = false)
+    private Long authorId;
+
+    public Product(String name, String description, BigDecimal price, Tag tag, String authorName, Long authorId) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.tag = tag;
+        this.authorName = authorName;
+        this.authorId = authorId;
     }
 
 }
