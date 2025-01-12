@@ -25,15 +25,17 @@ public class SecurityConfig {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(source -> source
-                    .requestMatchers(HttpMethod.GET, "/users").hasRole("OWNER")
-                    .requestMatchers(HttpMethod.GET, "/users/l/**").hasRole("OWNER")
-                    .requestMatchers(HttpMethod.GET, "/users/**").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
-                    .requestMatchers(HttpMethod.GET, "/products").permitAll()
-                    .requestMatchers(HttpMethod.POST, "/users/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users/l/**").hasRole("OWNER")
+                        .requestMatchers(HttpMethod.GET, "/users").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users/l/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users/u/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/users/i/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/products").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/users/**").permitAll()
+                        .requestMatchers(HttpMethod.PATCH).permitAll()
                     .anyRequest().authenticated())
                 .formLogin(Customizer.withDefaults())
-                .httpBasic(Customizer.withDefaults())
                 .userDetailsService(userDetailsService)
                 .build();
     }

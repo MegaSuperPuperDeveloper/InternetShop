@@ -7,6 +7,7 @@ import com.example.enums.Tag;
 import com.example.model.User;
 import com.example.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
@@ -50,17 +51,14 @@ public class UserService{
     }
 
     public User save(String username, String displayedUsername, String password) {
-        return userRepository.save(new User(displayedUsername, username.toLowerCase(), password));
+        return userRepository.save(new User(displayedUsername, username.toLowerCase(), new BCryptPasswordEncoder().encode(password)));
     }
 
     //region UPDATE
 
     @Transactional
-    public void updatePasswordById(Long userId, String password, String newPassword) {
-        User user = userRepository.findById(userId).orElse(null);
-        if (user.getPassword().equals(password) && isPasswordCorrect(newPassword)) {
-            userRepository.updatePasswordById(userId, newPassword);
-        }
+    public void updatePasswordById(Long userId, String newPassword) {
+        userRepository.updatePasswordById(userId, new BCryptPasswordEncoder().encode(newPassword));
     }
 
     @Transactional
@@ -104,9 +102,6 @@ public class UserService{
     //endregion
 
     //region Other functions
-    public boolean isPasswordCorrect(String password) {
-        return password.split("").length > 8;
-    }
 
     public void waitASecond() {
         try {

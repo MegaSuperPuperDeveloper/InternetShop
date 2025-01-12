@@ -1,14 +1,15 @@
 package com.example.controller;
 
-import com.example.dto.UserDTO;
 import com.example.enums.Role;
 import com.example.enums.Tag;
 import com.example.model.User;
+import com.example.service.ProductService;
 import com.example.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 public class UserController {
 
     private final UserService userService;
+    private PasswordEncoder passwordEncoder;
 
     //region Read
     @GetMapping
@@ -51,85 +53,91 @@ public class UserController {
     }
     //endregion
 
-//    @GetMapping ("/register")
-//    public String createUser(Model model, User user) {
-//        userService.waitASecond();
-//        model.addAttribute("user", new User());
-//        return "addUser";
-//    }
-//
-//    @PostMapping("/register")
-//    public String createUser(@ModelAttribute User user,
-//                             @RequestParam String passwordRetry,
-//                             Model model) {
-//        userService.waitASecond();
-//        if (userService.findByUsername(user.getUsername()).isPresent()) {
-//            model.addAttribute("error", "User with this username already exists.");
-//            return "addUser";
-//        }
-//        if (!user.getPassword().equals(passwordRetry)) {
-//            model.addAttribute("error", "Passwords do not match.");
-//            return "addUser"; // Возвращаем форму с ошибкой
-//        }
-//        userService.save(user.getUsername(), user.getDisplayedUsername(), user.getPassword());
-//        return "redirect:/users/i/1";
-//    }
-
     @PostMapping("/{displayedUsername}/{username}/{password}/{passwordRetry}")
     public ResponseEntity<User> createUser(@PathVariable String displayedUsername,
                                            @PathVariable String username,
                                            @PathVariable String password,
                                            @PathVariable String passwordRetry) {
-        userService.waitASecond();
         if (userService.findByUsername(username).isPresent()) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         if (!password.equals(passwordRetry)) {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
+        userService.waitASecond();
         userService.save(username, displayedUsername, password);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> deleteUser(@AuthenticationPrincipal User user, @PathVariable Long userId) {
+    //region Registration
+    @GetMapping("/registration")
+    public String registration() {
         userService.waitASecond();
-        if (userService.findById(userId).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        if (user.getRole().getHierarchy() > userService.findById(userId).get().role().getHierarchy()) {
-            userService.deleteById(userId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        if (user.getId().equals(userId)) {
-            userService.deleteById(userId);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        return "addUser";
     }
 
-    //region UPDATE
-
-    @PatchMapping("/{userId}/p/{currentPassword}/{newPassword}")
-    public ResponseEntity<Void> updatePasswordById(@AuthenticationPrincipal User user,
-                                                   @PathVariable Long userId,
-                                                   @PathVariable String currentPassword,
-                                                   @PathVariable String newPassword) {
-        userService.waitASecond();
-        if (userService.findById(userId).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @PostMapping("/registration")
+    public String addUser(User user, Model model) {
+        if (userService.findByUsername(user.getUsername()).isPresent()) {
+            return "loginIsBusy";
         }
-        if (!user.getId().equals(userId)) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        if (!user.getPassword().equals(model.getAttribute("passwordRetry"))) {
+            return "passwordsDoNotMatch";
         }
-        userService.updatePasswordById(userId, currentPassword, newPassword);
-        return new ResponseEntity<>(HttpStatus.OK);
+        if (isPasswordCorrect(model.getAttribute("password").toString())) {
+            return "PasswordIsLesserThenEight";
+        }
+        userService.save(user.getDisplayedUsername(), user.getUsername(), user.getPassword());
+        return getUsers(model);
     }
+    //endregion
+
+    //region DELETE
+    @GetMapping("/deleteUser")
+    public String deleteUser() {
+        userService.waitASecond();
+        return "deleteUser";
+    }
+
+    @GetMapping("/deleteUserById")
+    public String deleteUser(@AuthenticationPrincipal User user, Long userId, Model model) {
+        if (userService.findById(userId).isEmpty()) {
+            return "UserDoesNotExist";
+        }
+        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
+            return "youAreNotHigher";
+        }
+        userService.deleteById(userId);
+        return getUsers(model);
+    }
+    //endregion
+
+    //region Password Change
+    @GetMapping("/updatePassword")
+    public String updatePassword() {
+        userService.waitASecond();
+        return "updatePassword";
+    }
+
+    @GetMapping("/updatePasswordById")
+    public String updatePasswordById(@AuthenticationPrincipal User user, @RequestParam String password,
+                                     @RequestParam String newPassword, @RequestParam String retryPassword) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return "passwordsDoNotMatch";
+        }
+        if (!newPassword.equals(retryPassword)) {
+            return "newPasswordsDoNotMatch";
+        }
+        userService.updatePasswordById(user.getId(), newPassword);
+        return "redirect:/users/i/" + user.getId();
+    }
+    //endregion
 
     @PatchMapping("/{userId}/u/{newUsername}")
     public ResponseEntity<Void> updateUsernameById(@AuthenticationPrincipal User user,
                                                    @PathVariable Long userId, @PathVariable String newUsername) {
         userService.waitASecond();
+
         if (userService.findById(userId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -188,7 +196,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    // Решить проблему с тегами
+    //region Решить проблему с тегами
     @PatchMapping("/{userId}/add/{tag}")
     public ResponseEntity<Void> addTagById(@AuthenticationPrincipal User user,
                                            @PathVariable Long userId, @PathVariable Tag tag) {
@@ -216,8 +224,12 @@ public class UserController {
         userService.removeTagToUser(userId, tag);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
     //endregion
+
+    //region Other Functions
+    public boolean isPasswordCorrect(String password) {
+        return password.split("").length > 8;
+    }
     //endregion
 
 }

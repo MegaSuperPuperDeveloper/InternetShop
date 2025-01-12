@@ -43,7 +43,7 @@ public class User implements UserDetails {
     private Set<Tag> tags = new HashSet<>();
 
     @Column(nullable = false)
-    private String createdAt;
+    private LocalDateTime createdAt;
 
     @Column(nullable = false)
     private String description;
@@ -51,16 +51,10 @@ public class User implements UserDetails {
     public User(String displayedUsername, String username, String password) {
         this.displayedUsername = displayedUsername;
         this.username = username;
-        this.password = new BCryptPasswordEncoder().encode(password);
-        this.createdAt = createdAt();
+        this.password = password;
+        this.createdAt = LocalDateTime.now();
         this.description = "";
         this.role = Role.ROLE_USER;
-    }
-
-    public String createdAt() {
-        String[] array = LocalDateTime.now().toString().split("T");
-        array = array[1].split("\\.");
-        return array[0] + ", " + array[1];
     }
 
     @Override
