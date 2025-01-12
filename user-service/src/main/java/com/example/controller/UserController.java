@@ -133,11 +133,27 @@ public class UserController {
     }
     //endregion
 
+    //region Login Change
+    @GetMapping("/updateLogin")
+    public String updateLogin() {
+        userService.waitASecond();
+        return "updateLogin";
+    }
+
+    @GetMapping("/updateLoginById")
+    public String updateLoginById(@AuthenticationPrincipal User user,
+                                  @RequestParam String username, @RequestParam String password) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return "passwordsDoNotMatch";
+        }
+        userService.updateLoginById(user.getId(), username);
+        return "redirect:/users/i/" + user.getId();
+    }
+    //endregion
+
     @PatchMapping("/{userId}/u/{newUsername}")
     public ResponseEntity<Void> updateUsernameById(@AuthenticationPrincipal User user,
                                                    @PathVariable Long userId, @PathVariable String newUsername) {
-        userService.waitASecond();
-
         if (userService.findById(userId).isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -145,20 +161,6 @@ public class UserController {
             return new ResponseEntity<>(HttpStatus.CONFLICT);
         }
         userService.updateDisplayedUsernameById(userId, newUsername);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @PatchMapping("/{userId}/l/{newLogin}")
-    public ResponseEntity<Void> updateLoginById(@AuthenticationPrincipal User user,
-                                                @PathVariable Long userId, @PathVariable String newLogin) {
-        userService.waitASecond();
-        if (userService.findById(userId).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        if (!user.getId().equals(userId)) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
-        userService.updateLoginById(userId, newLogin);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
