@@ -1,9 +1,9 @@
 package com.example.controller;
 
+import com.example.dto.UserDTO;
 import com.example.enums.Role;
 import com.example.enums.Tag;
 import com.example.model.User;
-import com.example.service.ProductService;
 import com.example.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,7 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import java.util.stream.Collectors;
+
+import java.util.Optional;
 
 @Controller
 @AllArgsConstructor
@@ -41,15 +42,25 @@ public class UserController {
     @GetMapping("/l/{username}")
     public String getUserByLogin(@PathVariable String username, Model model) {
         userService.waitASecond();
-        model.addAttribute("users", userService.findByUsername(username).stream().collect(Collectors.toList()));
-        return "users";
+        Optional<UserDTO> userDTO = userService.findByUsername(username);
+
+        if (userDTO.isEmpty()) {
+            return "UserDoesNotExist";
+        }
+        model.addAttribute("user", userDTO);
+        return "user";
     }
 
     @GetMapping("/i/{userId}")
     public String getUserById(@PathVariable Long userId, Model model) {
         userService.waitASecond();
-        model.addAttribute("users", userService.findById(userId).stream().collect(Collectors.toList()));
-        return "users";
+        Optional<UserDTO> userDTO = userService.findById(userId);
+
+        if (userDTO.isEmpty()) {
+            return "UserDoesNotExist";
+        }
+        model.addAttribute("user", userDTO.get());
+        return "user";
     }
     //endregion
 
@@ -151,18 +162,71 @@ public class UserController {
     }
     //endregion
 
-    @PatchMapping("/{userId}/u/{newUsername}")
-    public ResponseEntity<Void> updateUsernameById(@AuthenticationPrincipal User user,
-                                                   @PathVariable Long userId, @PathVariable String newUsername) {
-        if (userService.findById(userId).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy() && !user.getId().equals(userId)) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
-        userService.updateDisplayedUsernameById(userId, newUsername);
-        return new ResponseEntity<>(HttpStatus.OK);
+    //region Username change
+    @GetMapping("/updateYourUsername")
+    public String updateYourUsername() {
+        userService.waitASecond();
+        return "updateUsernameForYourself";
     }
+
+    @GetMapping("/updateYourUsernameById")
+    public String updateUsernameById(@AuthenticationPrincipal User user,
+                                     @RequestParam String password, @RequestParam String displayedUsername) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return "passwordsDoNotMatch";
+        }
+        userService.updateDisplayedUsernameById(user.getId(), displayedUsername);
+        return "redirect:/users/i/" + user.getId();
+    }
+
+    @GetMapping("/updateNotYourUsername")
+    public String updateNotYourUsername() {
+        userService.waitASecond();
+        return "updateUsernameForOtherPerson";
+    }
+
+    @GetMapping("/updateNotYourUsernameById")
+    public String updateNotYourUsernameById(@AuthenticationPrincipal User user, @RequestParam Long userId,
+                                            @RequestParam String password, @RequestParam String displayedUsername) {
+        if (userService.findById(userId).isEmpty()) {
+            return "UserDoesNotExist";
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return "passwordsDoNotMatch";
+        }
+        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
+            return "youAreNotHigher";
+        }
+        userService.updateDisplayedUsernameById(userId, displayedUsername);
+        return "redirect:/users/i/" + userId;
+    }
+    //endregion
+
+    //region Role Change
+    @GetMapping("/updateRole")
+    public String updateRole() {
+        userService.waitASecond();
+        return "updateRole";
+    }
+
+    @GetMapping("/updateRoleById")
+    public String updateRoleById(@AuthenticationPrincipal User user, @RequestParam Role role, @RequestParam Long userId) {
+        if (userService.findById(userId).isEmpty()) {
+            return "UserDoesNotExist";
+        }
+        if (user.getRole().getHierarchy() <= role.getHierarchy()) {
+            return "youAreNotHigher";
+        }
+        if (role.equals(userService.findById(userId).get().role())) {
+            return "userHasThisRole";
+        }
+        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
+            return "youAreNotHigher";
+        }
+        userService.updateRoleById(userId, role);
+        return "redirect:/users/i/" + userId;
+    }
+    //endregion
 
     @PatchMapping("/{userId}/r/{role}")
     public ResponseEntity<Void> updateRoleById(@AuthenticationPrincipal User user,
@@ -184,19 +248,41 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PatchMapping("/{userId}/d/{description}")
-    public ResponseEntity<Void> updateDescriptionById(@AuthenticationPrincipal User user,
-                                                      @PathVariable Long userId,  @PathVariable String description) {
+
+    //region Description change
+    @GetMapping("/updateYourDescription")
+    public String updateDescription() {
         userService.waitASecond();
+        return "updateYourDescription";
+    }
+
+    @GetMapping("/updateYourDescriptionById")
+    public String updateDescriptionById(@AuthenticationPrincipal User user,
+                                        @RequestParam String description) {
+        userService.updateDescriptionById(user.getId(), description);
+        return "redirect:/users/i/" + user.getId();
+    }
+
+    @GetMapping("updateNotYourDescription")
+    public String updateNotYourDescription() {
+        userService.waitASecond();
+        return "updateNotYourDescription";
+    }
+
+    @GetMapping("updateNotYourDescriptionById")
+    public String updateNotYourDescriptionById(@AuthenticationPrincipal User user,
+                                               @RequestParam String description, @RequestParam Long userId) {
         if (userService.findById(userId).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return "UserDoesNotExist";
         }
-        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy() && !user.getId().equals(userId)) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
+            return "youAreNotHigher";
         }
         userService.updateDescriptionById(userId, description);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return "redirect:/users/i/" + userId;
     }
+
+    //endregion
 
     //region Решить проблему с тегами
     @PatchMapping("/{userId}/add/{tag}")

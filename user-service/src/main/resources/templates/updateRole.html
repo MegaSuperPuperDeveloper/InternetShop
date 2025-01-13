@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Change the role</title>
+</head>
+<body>
+<h3>Change the role</h3>
+
+<form action="/users/updateRoleById" method="get">
+  User's id <input type="text" name="userId"/>
+  <label for="role">Role:</label>
+  <select name="role" id="role" required>
+    <option value="ROLE_USER">User</option>
+    <option value="ROLE_ADMIN">Admin</option>
+    <option value="ROLE_OWNER">Owner</option>
+  </select>
+
+  <br><br>
+  <button type="submit">Change the role</button>
+</form>
+
+</body>
+</html>

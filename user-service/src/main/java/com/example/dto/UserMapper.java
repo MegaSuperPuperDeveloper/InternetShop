@@ -19,15 +19,4 @@ public class UserMapper {
         );
     }
 
-    public User mapToEntity(UserDTO userDTO) {
-        User user = new User();
-        user.setId(userDTO.id());
-        user.setDisplayedUsername(userDTO.displayedUsername());
-        user.setRole(userDTO.role());
-        user.setTags(userDTO.tags());
-        user.setCreatedAt(userDTO.createdAt());
-        user.setDescription(userDTO.description());
-        return user;
-    }
-
 }
