@@ -29,14 +29,14 @@ public class UserController {
     public String getUsers(Model model) {
         userService.waitASecond();
         model.addAttribute("users", userService.findAll());
-        return "users";
+        return "/users/users";
     }
 
     @GetMapping("/u/{displayedUsername}")
     public String getByDisplayedUsername(@PathVariable String displayedUsername, Model model) {
         userService.waitASecond();
         model.addAttribute("users", userService.findByDisplayedUsername(displayedUsername));
-        return "users";
+        return "/users/users";
     }
 
     @GetMapping("/l/{username}")
@@ -45,10 +45,10 @@ public class UserController {
         Optional<UserDTO> userDTO = userService.findByUsername(username);
 
         if (userDTO.isEmpty()) {
-            return "UserDoesNotExist";
+            return "/users/UserDoesNotExist";
         }
         model.addAttribute("user", userDTO);
-        return "user";
+        return "/users/user";
     }
 
     @GetMapping("/i/{userId}")
@@ -57,10 +57,10 @@ public class UserController {
         Optional<UserDTO> userDTO = userService.findById(userId);
 
         if (userDTO.isEmpty()) {
-            return "UserDoesNotExist";
+            return "/users/UserDoesNotExist";
         }
         model.addAttribute("user", userDTO.get());
-        return "user";
+        return "/users/user";
     }
     //endregion
 
@@ -84,39 +84,39 @@ public class UserController {
     @GetMapping("/registration")
     public String registration() {
         userService.waitASecond();
-        return "addUser";
+        return "/users/addUser";
     }
 
     @PostMapping("/registration")
     public String addUser(User user, Model model) {
         if (userService.findByUsername(user.getUsername()).isPresent()) {
-            return "loginIsBusy";
+            return "/users/loginIsBusy";
         }
         if (!user.getPassword().equals(model.getAttribute("passwordRetry"))) {
-            return "passwordsDoNotMatch";
+            return "/users/passwordsDoNotMatch";
         }
         if (isPasswordCorrect(model.getAttribute("password").toString())) {
-            return "PasswordIsLesserThenEight";
+            return "/users/PasswordIsLesserThenEight";
         }
         userService.save(user.getDisplayedUsername(), user.getUsername(), user.getPassword());
         return getUsers(model);
     }
     //endregion
 
-    //region DELETE
+    //region DELETE(Сделать удаление самого себя)
     @GetMapping("/deleteUser")
     public String deleteUser() {
         userService.waitASecond();
-        return "deleteUser";
+        return "/users/deleteUser";
     }
 
     @GetMapping("/deleteUserById")
     public String deleteUser(@AuthenticationPrincipal User user, Long userId, Model model) {
         if (userService.findById(userId).isEmpty()) {
-            return "UserDoesNotExist";
+            return "/users/UserDoesNotExist";
         }
         if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
-            return "youAreNotHigher";
+            return "/users/youAreNotHigher";
         }
         userService.deleteById(userId);
         return getUsers(model);
@@ -127,17 +127,17 @@ public class UserController {
     @GetMapping("/updatePassword")
     public String updatePassword() {
         userService.waitASecond();
-        return "updatePassword";
+        return "/users/updatePassword";
     }
 
     @GetMapping("/updatePasswordById")
     public String updatePasswordById(@AuthenticationPrincipal User user, @RequestParam String password,
                                      @RequestParam String newPassword, @RequestParam String retryPassword) {
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            return "passwordsDoNotMatch";
+            return "/users/passwordsDoNotMatch";
         }
         if (!newPassword.equals(retryPassword)) {
-            return "newPasswordsDoNotMatch";
+            return "/users/newPasswordsDoNotMatch";
         }
         userService.updatePasswordById(user.getId(), newPassword);
         return "redirect:/users/i/" + user.getId();
@@ -148,14 +148,14 @@ public class UserController {
     @GetMapping("/updateLogin")
     public String updateLogin() {
         userService.waitASecond();
-        return "updateLogin";
+        return "/users/updateLogin";
     }
 
     @GetMapping("/updateLoginById")
     public String updateLoginById(@AuthenticationPrincipal User user,
                                   @RequestParam String username, @RequestParam String password) {
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            return "passwordsDoNotMatch";
+            return "/users/passwordsDoNotMatch";
         }
         userService.updateLoginById(user.getId(), username);
         return "redirect:/users/i/" + user.getId();
@@ -166,14 +166,14 @@ public class UserController {
     @GetMapping("/updateYourUsername")
     public String updateYourUsername() {
         userService.waitASecond();
-        return "updateUsernameForYourself";
+        return "/users/updateUsernameForYourself";
     }
 
     @GetMapping("/updateYourUsernameById")
     public String updateUsernameById(@AuthenticationPrincipal User user,
                                      @RequestParam String password, @RequestParam String displayedUsername) {
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            return "passwordsDoNotMatch";
+            return "/users/passwordsDoNotMatch";
         }
         userService.updateDisplayedUsernameById(user.getId(), displayedUsername);
         return "redirect:/users/i/" + user.getId();
@@ -182,20 +182,20 @@ public class UserController {
     @GetMapping("/updateNotYourUsername")
     public String updateNotYourUsername() {
         userService.waitASecond();
-        return "updateUsernameForOtherPerson";
+        return "/users/updateUsernameForOtherPerson";
     }
 
     @GetMapping("/updateNotYourUsernameById")
     public String updateNotYourUsernameById(@AuthenticationPrincipal User user, @RequestParam Long userId,
                                             @RequestParam String password, @RequestParam String displayedUsername) {
         if (userService.findById(userId).isEmpty()) {
-            return "UserDoesNotExist";
+            return "/users/UserDoesNotExist";
         }
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            return "passwordsDoNotMatch";
+            return "/users/passwordsDoNotMatch";
         }
         if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
-            return "youAreNotHigher";
+            return "/users/youAreNotHigher";
         }
         userService.updateDisplayedUsernameById(userId, displayedUsername);
         return "redirect:/users/i/" + userId;
@@ -206,22 +206,22 @@ public class UserController {
     @GetMapping("/updateRole")
     public String updateRole() {
         userService.waitASecond();
-        return "updateRole";
+        return "/users/updateRole";
     }
 
     @GetMapping("/updateRoleById")
     public String updateRoleById(@AuthenticationPrincipal User user, @RequestParam Role role, @RequestParam Long userId) {
         if (userService.findById(userId).isEmpty()) {
-            return "UserDoesNotExist";
+            return "/users/UserDoesNotExist";
         }
         if (user.getRole().getHierarchy() <= role.getHierarchy()) {
-            return "youAreNotHigher";
+            return "/users/youAreNotHigher";
         }
         if (role.equals(userService.findById(userId).get().role())) {
-            return "userHasThisRole";
+            return "/users/userHasThisRole";
         }
         if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
-            return "youAreNotHigher";
+            return "/users/youAreNotHigher";
         }
         userService.updateRoleById(userId, role);
         return "redirect:/users/i/" + userId;
@@ -253,7 +253,7 @@ public class UserController {
     @GetMapping("/updateYourDescription")
     public String updateDescription() {
         userService.waitASecond();
-        return "updateYourDescription";
+        return "/users/updateYourDescription";
     }
 
     @GetMapping("/updateYourDescriptionById")
@@ -266,17 +266,17 @@ public class UserController {
     @GetMapping("updateNotYourDescription")
     public String updateNotYourDescription() {
         userService.waitASecond();
-        return "updateNotYourDescription";
+        return "/users/updateNotYourDescription";
     }
 
     @GetMapping("updateNotYourDescriptionById")
     public String updateNotYourDescriptionById(@AuthenticationPrincipal User user,
                                                @RequestParam String description, @RequestParam Long userId) {
         if (userService.findById(userId).isEmpty()) {
-            return "UserDoesNotExist";
+            return "/users/UserDoesNotExist";
         }
         if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
-            return "youAreNotHigher";
+            return "/users/youAreNotHigher";
         }
         userService.updateDescriptionById(userId, description);
         return "redirect:/users/i/" + userId;

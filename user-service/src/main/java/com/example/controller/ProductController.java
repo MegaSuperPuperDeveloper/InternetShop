@@ -28,21 +28,21 @@ public class ProductController {
     public String getAllProducts(Model model) {
         productService.waitASecond();
         model.addAttribute("products", productService.getProducts());
-        return "products";
-    }
-
-    @GetMapping("/i/{productId}")
-    public String findById(@PathVariable Long productId, Model model) {
-        productService.waitASecond();
-        model.addAttribute("products", productService.findById(productId).stream().collect(Collectors.toList()));
-        return "products";
+        return "/products/products";
     }
 
     @GetMapping("/u/{name}")
     public String getProductByName(@PathVariable String name, Model model) {
         productService.waitASecond();
         model.addAttribute("products", productService.getProductsByName(name));
-        return "products";
+        return "/products/products";
+    }
+
+    @GetMapping("/i/{productId}")
+    public String findById(@PathVariable Long productId, Model model) {
+        productService.waitASecond();
+        model.addAttribute("product", productService.findById(productId));
+        return "/products/product";
     }
     //endregion
 
