@@ -29,7 +29,7 @@ public class Product {
     private BigDecimal price;
 
     @Column(nullable = false)
-    private String createdAt;
+    private LocalDateTime createdAt;
 
     @Column(nullable = false)
     private Tag tag;
@@ -45,15 +45,9 @@ public class Product {
         this.description = description;
         this.price = price;
         this.tag = tag;
-        this.createdAt = createdAt();
+        this.createdAt = LocalDateTime.now();
         this.authorName = authorName;
         this.authorId = authorId;
-    }
-
-    public String createdAt() {
-        String[] array = LocalDateTime.now().toString().split("T");
-        array = array[1].split("\\.");
-        return array[0] + ", " + array[1];
     }
 
 }

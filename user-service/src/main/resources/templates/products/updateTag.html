@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tag change</title>
+</head>
+
+<body>
+
+<h3>Tag change</h3>
+<form action="/products/updateTagById" method="post">
+    Product's id: <input type="text" name="productId"><br />
+    Currently password: <input type="password" name="password"><br />
+    <label for="tag">Tag:</label>
+    <select name="tag" id="tag" required>
+        <option value="CLOTHES">Clothes</option>
+        <option value="HOUSE">House</option>
+        <option value="FOR_KIDS">For kids</option>
+        <option value="BEAUTY">Beauty</option>
+        <option value="ELECTRONICS">Electronics</option>
+        <option value="HOME_APPLIANCES">Бытовая техника</option>
+        <option value="FLOWERS">Flowers</option>
+        <option value="DACHA_AND_GROUND">For dacha and ground</option>
+        <option value="FOOD_PRODUCTS">Food</option>
+        <option value="BUILDING_AND_REPAIR">Building and repair</option>
+        <option value="FURNITURE">Furniture</option>
+        <option value="DISCOUNTS_AND_PROMOTIONS">Discounts and promotions</option>
+        <option value="CAR_PRODUCTS">Products for cars</option>
+        <option value="PHARMACY">Pharmacy</option>
+        <option value="SPORT">Sport</option>
+        <option value="RELAX">Relax</option>
+        <option value="IKEA_PRODUCTS">IKEA</option>
+        <option value="JEWELLERY">Jewellery</option>
+        <option value="BOOKS">Books</option>
+        <option value="HOBBY_AND_CREATIVE">Hobby and creative</option>
+        <option value="LEISURE_AND_ENTERTAINMENT">Leisure and entertainment</option>
+        <option value="FOR_SCHOOL_AND_OFFICE">For school and office</option>
+        <option value="LAPTOPS_AND_COMPUTERS">Laptops and computers</option>
+        <option value="EVERYTHING_FOR_GAMING">For gamers</option>
+        <option value="SMART_STATION">Smart stations</option>
+        <option value="HYGIENE">Hygiene</option>
+        <option value="CHEMISTRY">Chemistry</option>
+        <option value="ZOO_PRODUCTS">Zoo products</option>
+        <option value="OPTICS">Optics</option>
+    </select>
+    <button type="submit">Change the tag</button>
+</form>
+
+</body>
+
+</html>

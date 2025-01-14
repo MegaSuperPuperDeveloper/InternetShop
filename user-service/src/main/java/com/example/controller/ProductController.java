@@ -9,11 +9,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Controller
 @AllArgsConstructor
@@ -22,6 +23,7 @@ public class ProductController {
 
     private final ProductService productService;
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
     //region READ
     @GetMapping
@@ -41,26 +43,47 @@ public class ProductController {
     @GetMapping("/i/{productId}")
     public String findById(@PathVariable Long productId, Model model) {
         productService.waitASecond();
-        model.addAttribute("product", productService.findById(productId));
+        Optional<Product> product = productService.findById(productId);
+        if (product.isEmpty()) {
+            return "/products/productDoesNotExist";
+        }
+        model.addAttribute("product", product.orElse(null));
         return "/products/product";
     }
     //endregion
 
-    @PostMapping("/{name}/{description}/{price}/{tag}")
-    public ResponseEntity<Product> addProduct(@AuthenticationPrincipal User user,
-                                              @PathVariable String name,
-                                              @PathVariable String description,
-                                              @PathVariable BigDecimal price,
-                                              @PathVariable Tag tag) {
+    //region Publish product
+    @GetMapping("/publishProduct")
+    public String publishProduct() {
         productService.waitASecond();
-        return new ResponseEntity<>(productService.addProduct(name, description, price, tag, user.getDisplayedUsername(), user.getId()), HttpStatus.CREATED);
+        return "/products/publishProduct";
     }
 
-    @DeleteMapping("/{productId}")
-    public ResponseEntity<Product> deleteProduct(@AuthenticationPrincipal User user, @PathVariable Long productId) {
+    @GetMapping("/publishProductById")
+    public String publishProductById(@AuthenticationPrincipal User user,
+                                     @RequestParam String name,
+                                     @RequestParam String description,
+                                     @RequestParam BigDecimal price,
+                                     @RequestParam Tag tag) {
+        Product product = productService.addProduct(name, description, price, tag, user.getDisplayedUsername(), user.getId());
+        return "redirect:/products/i/" + product.getId();
+    }
+    //endregion
+
+    //region Delete
+    @GetMapping("/deleteProduct")
+    public String deleteProduct() {
         productService.waitASecond();
+        return "/products/deleteProduct";
+    }
+
+    @PostMapping("/deleteProductById")
+    public String deleteProductById(@AuthenticationPrincipal User user, @RequestParam Long productId, @RequestParam String password) {
         if (productService.findById(productId).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return "/products/productDoesNotExist";
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return "/users/passwordsDoNotMatch";
         }
         if (!productService.findById(productId).get().getAuthorId().equals(user.getId())) {
 
@@ -68,56 +91,122 @@ public class ProductController {
             int userWhoWantsDeleteProduct = userService.findById(user.getId()).get().role().getHierarchy();
 
             if (userWhoWantsDeleteProduct <= owner) {
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+                return "/users/youAreNotHigher";
             }
+
         }
         productService.deleteProductById(productId);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return "redirect:/products";
+    }
+    //endregion
+
+    //region Name change
+    @GetMapping("/updateName")
+    public String updateYourUsername() {
+        productService.waitASecond();
+        return "/products/updateName";
     }
 
-    //region UPDATE
-    @PatchMapping("/{productId}/n/{name}")
-    public ResponseEntity<Void> updateNameById(@AuthenticationPrincipal User user,
-                                               @PathVariable Long productId, @PathVariable String name) {
-        productService.waitASecond();
+    @PostMapping("/updateNameById")
+    public String updateYourUsernameById(@AuthenticationPrincipal User user,
+                                         @RequestParam String password, @RequestParam String newName, @RequestParam Long productId) {
         if (productService.findById(productId).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return "/products/productDoesNotExist";
         }
-        productService.updateNameById(productId, name);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    @PatchMapping("/{productId}/d/{description}")
-    public ResponseEntity<Void> updateDescriptionById(@AuthenticationPrincipal User user,
-                                                      @PathVariable Long productId, @PathVariable String description) {
-        productService.waitASecond();
-        if (productService.findById(productId).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return "/users/passwordsDoNotMatch";
         }
-        productService.updateDescriptionById(productId, description);
-        return new ResponseEntity<>(HttpStatus.OK);
+        if (!productService.findById(productId).get().getAuthorId().equals(user.getId())) {
+
+            int owner = userService.findById(productService.findById(productId).get().getAuthorId()).get().role().getHierarchy();
+            int userWhoWantsDeleteProduct = userService.findById(user.getId()).get().role().getHierarchy();
+
+            if (userWhoWantsDeleteProduct <= owner) {
+                return "/users/youAreNotHigher";
+            }
+
+        }
+        productService.updateNameById(productId, newName);
+        return "redirect:/products/i/" + productId;
+    }
+    //endregion
+
+    //region Description change
+    @GetMapping("/updateDescription")
+    public String updateDescription() {
+        productService.waitASecond();
+        return "/products/updateDescription";
     }
 
-    @PatchMapping("/{productId}/p/{price}")
-    public ResponseEntity<Void> updatePriceById(@AuthenticationPrincipal User user,
-                                                @PathVariable Long productId, @PathVariable double price) {
-        productService.waitASecond();
+    @PostMapping("/updateDescriptionById")
+    public String updateDescriptionById(@AuthenticationPrincipal User user,
+                                        @RequestParam String newDescription, @RequestParam Long productId, @RequestParam String password) {
         if (productService.findById(productId).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return "/products/productDoesNotExist";
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return "/users/passwordsDoNotMatch";
+        }
+        if (!productService.findById(productId).get().getAuthorId().equals(user.getId())) {
+
+            int owner = userService.findById(productService.findById(productId).get().getAuthorId()).get().role().getHierarchy();
+            int userWhoWantsDeleteProduct = userService.findById(user.getId()).get().role().getHierarchy();
+
+            if (userWhoWantsDeleteProduct <= owner) {
+                return "/users/youAreNotHigher";
+            }
+
+        }
+        productService.updateDescriptionById(productId, newDescription);
+        return "redirect:/products/i/" + productId;
+    }
+    //endregion
+
+    //region Price change (СДЕЛАТЬ ВЫБОР ВАЛЮТЫ)
+    @GetMapping("/updatePrice")
+    public String updatePrice() {
+        productService.waitASecond();
+        return "/products/updatePrice";
+    }
+
+    @GetMapping("/updatePriceById")
+    public String updatePriceById(@AuthenticationPrincipal User user,
+                                  @RequestParam String password, @RequestParam Long productId, @RequestParam BigDecimal price) {
+        if (productService.findById(productId).isEmpty()) {
+            return "/products/productDoesNotExist";
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return "/users/passwordsDoNotMatch";
+        }
+        if (!productService.findById(productId).get().getAuthorId().equals(user.getId())) {
+            return "/products/youCannotChangeIt";
         }
         productService.updatePriceById(productId, price);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return "redirect:/products/i/" + productId;
+    }
+    //endregion
+
+    //region Tag change
+    @GetMapping("/updateTag")
+    public String updateTag() {
+        productService.waitASecond();
+        return "/products/updateTag";
     }
 
-    @PatchMapping("/{productId}/t/{tag}")
-    public ResponseEntity<Void> updateTagById(@AuthenticationPrincipal User user,
-                                              @PathVariable Long productId, @PathVariable Tag tag) {
-        productService.waitASecond();
+    @PostMapping("/updateTagById")
+    public String updateTagById(@AuthenticationPrincipal User user,
+                                @RequestParam String password, @RequestParam Long productId, @RequestParam Tag tag) {
         if (productService.findById(productId).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return "/products/productDoesNotExist";
+        }
+        if (!productService.findById(productId).get().getAuthorId().equals(user.getId())) {
+            return "/products/youCannotChangeIt";
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return "/users/passwordsDoNotMatch";
         }
         productService.updateTagById(productId, tag);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return "redirect:/products/i/" + productId;
     }
     //endregion
 

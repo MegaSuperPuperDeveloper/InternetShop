@@ -88,14 +88,14 @@ public class UserController {
     }
 
     @PostMapping("/registration")
-    public String addUser(User user, Model model) {
+    public String addUser(User user, Model model, @RequestParam String password, @RequestParam String passwordRetry) {
         if (userService.findByUsername(user.getUsername()).isPresent()) {
             return "/users/loginIsBusy";
         }
-        if (!user.getPassword().equals(model.getAttribute("passwordRetry"))) {
+        if (!password.equals(passwordRetry)) {
             return "/users/passwordsDoNotMatch";
         }
-        if (isPasswordCorrect(model.getAttribute("password").toString())) {
+        if (isPasswordCorrect(password)) {
             return "/users/PasswordIsLesserThenEight";
         }
         userService.save(user.getDisplayedUsername(), user.getUsername(), user.getPassword());
@@ -103,24 +103,43 @@ public class UserController {
     }
     //endregion
 
-    //region DELETE(Сделать удаление самого себя)
-    @GetMapping("/deleteUser")
+    //region DELETE
+    @GetMapping("/deleteNotYourUser")
     public String deleteUser() {
         userService.waitASecond();
-        return "/users/deleteUser";
+        return "/users/deleteNotYourUser";
     }
 
-    @GetMapping("/deleteUserById")
-    public String deleteUser(@AuthenticationPrincipal User user, Long userId, Model model) {
+    @GetMapping("/deleteNotYourUserById")
+    public String deleteUser(@AuthenticationPrincipal User user, Long userId, Model model, @RequestParam String password) {
         if (userService.findById(userId).isEmpty()) {
             return "/users/UserDoesNotExist";
+        }
+        if (!passwordEncoder.matches(user.getPassword(), password)) {
+            return "/users/passwordsDoNotMatch";
         }
         if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
             return "/users/youAreNotHigher";
         }
         userService.deleteById(userId);
-        return getUsers(model);
+        return "redirect:/users";
     }
+
+    @GetMapping("/deleteYourUser")
+    public String deleteYourUser() {
+        userService.waitASecond();
+        return "/users/deleteYourUser";
+    }
+
+    @GetMapping("/deleteYourUserById")
+    public String deleteYourUser(@AuthenticationPrincipal User user, @RequestParam String password) {
+        userService.deleteById(user.getId());
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return "/users/passwordsDoNotMatch";
+        }
+        return "redirect:/users";
+    }
+
     //endregion
 
     //region Password Change
@@ -258,7 +277,10 @@ public class UserController {
 
     @GetMapping("/updateYourDescriptionById")
     public String updateDescriptionById(@AuthenticationPrincipal User user,
-                                        @RequestParam String description) {
+                                        @RequestParam String description, @RequestParam String password) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return "/users/passwordsDoNotMatch";
+        }
         userService.updateDescriptionById(user.getId(), description);
         return "redirect:/users/i/" + user.getId();
     }
@@ -271,12 +293,15 @@ public class UserController {
 
     @GetMapping("updateNotYourDescriptionById")
     public String updateNotYourDescriptionById(@AuthenticationPrincipal User user,
-                                               @RequestParam String description, @RequestParam Long userId) {
+                                               @RequestParam String description, @RequestParam Long userId, @RequestParam String password) {
         if (userService.findById(userId).isEmpty()) {
             return "/users/UserDoesNotExist";
         }
         if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
             return "/users/youAreNotHigher";
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return "/users/passwordsDoNotMatch";
         }
         userService.updateDescriptionById(userId, description);
         return "redirect:/users/i/" + userId;
@@ -316,7 +341,7 @@ public class UserController {
 
     //region Other Functions
     public boolean isPasswordCorrect(String password) {
-        return password.split("").length > 8;
+        return password.length() <= 8;
     }
     //endregion
 

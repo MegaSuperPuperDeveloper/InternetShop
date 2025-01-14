@@ -52,7 +52,7 @@ public class ProductService {
     }
 
     @Transactional
-    public void updatePriceById(Long id, double price) {
+    public void updatePriceById(Long id, BigDecimal price) {
         productRepository.updatePriceById(id, price);
     }
 

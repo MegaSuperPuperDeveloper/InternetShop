@@ -18,7 +18,7 @@ public enum Tag {
     DISCOUNTS_AND_PROMOTIONS("Скидки и акции"),
     CAR_PRODUCTS("Товары для авто"),
     PHARMACY("Аптека"),
-    SPORT_AND_RELAX("Спорт"),
+    SPORT("Спорт"),
     RELAX("Отдых"),
     IKEA_PRODUCTS("Товары ИКЕА"),
     JEWELLERY("Ювелирные товары"),
