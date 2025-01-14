@@ -169,9 +169,9 @@ public class ProductController {
         return "/products/updatePrice";
     }
 
-    @GetMapping("/updatePriceById")
+    @PostMapping("/updatePriceById")
     public String updatePriceById(@AuthenticationPrincipal User user,
-                                  @RequestParam String password, @RequestParam Long productId, @RequestParam BigDecimal price) {
+                                  @RequestParam String password, @RequestParam Long productId, @RequestParam BigDecimal newPrice) {
         if (productService.findById(productId).isEmpty()) {
             return "/products/productDoesNotExist";
         }
@@ -181,7 +181,7 @@ public class ProductController {
         if (!productService.findById(productId).get().getAuthorId().equals(user.getId())) {
             return "/products/youCannotChangeIt";
         }
-        productService.updatePriceById(productId, price);
+        productService.updatePriceById(productId, newPrice);
         return "redirect:/products/i/" + productId;
     }
     //endregion
