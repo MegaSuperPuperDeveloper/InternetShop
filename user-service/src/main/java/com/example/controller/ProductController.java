@@ -6,8 +6,6 @@ import com.example.model.User;
 import com.example.service.ProductService;
 import com.example.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -124,6 +122,8 @@ public class ProductController {
             if (userWhoWantsDeleteProduct <= owner) {
                 return "/users/youAreNotHigher";
             }
+            productService.updateNameById(productId, "Name");
+            return "redirect:/products/i/" + productId;
 
         }
         productService.updateNameById(productId, newName);
@@ -131,7 +131,7 @@ public class ProductController {
     }
     //endregion
 
-    //region Description change
+    //region Description
     @GetMapping("/updateDescription")
     public String updateDescription() {
         productService.waitASecond();
@@ -155,6 +155,8 @@ public class ProductController {
             if (userWhoWantsDeleteProduct <= owner) {
                 return "/users/youAreNotHigher";
             }
+            productService.updateDescriptionById(productId, "Description");
+            return "redirect:/products/i/" + productId;
 
         }
         productService.updateDescriptionById(productId, newDescription);

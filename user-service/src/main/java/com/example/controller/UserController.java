@@ -13,7 +13,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.Optional;
 
 @Controller
@@ -206,17 +205,14 @@ public class UserController {
 
     @GetMapping("/updateNotYourUsernameById")
     public String updateNotYourUsernameById(@AuthenticationPrincipal User user, @RequestParam Long userId,
-                                            @RequestParam String password, @RequestParam String displayedUsername) {
+                                            @RequestParam String password) {
         if (userService.findById(userId).isEmpty()) {
-            return "/users/UserDoesNotExist";
+            return "/products/productDoesNotExist";
         }
         if (!passwordEncoder.matches(password, user.getPassword())) {
             return "/users/passwordsDoNotMatch";
         }
-        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
-            return "/users/youAreNotHigher";
-        }
-        userService.updateDisplayedUsernameById(userId, displayedUsername);
+        userService.updateDisplayedUsernameById(userId, "User");
         return "redirect:/users/i/" + userId;
     }
     //endregion
@@ -247,27 +243,6 @@ public class UserController {
     }
     //endregion
 
-    @PatchMapping("/{userId}/r/{role}")
-    public ResponseEntity<Void> updateRoleById(@AuthenticationPrincipal User user,
-                                               @PathVariable Long userId, @PathVariable Role role) {
-        userService.waitASecond();
-        if (userService.findById(userId).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-//        if (user.getRole().getHierarchy() <= role.getHierarchy()) {
-//            return new ResponseEntity<>(HttpStatus.CONFLICT);
-//        }
-//        if (role == userService.findById(userId).get().role()) {
-//            return new ResponseEntity<>(HttpStatus.CONFLICT);
-//        }
-//        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
-//            return new ResponseEntity<>(HttpStatus.CONFLICT);
-//        }
-        userService.updateRoleById(userId, role);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-
     //region Description change
     @GetMapping("/updateYourDescription")
     public String updateDescription() {
@@ -293,17 +268,14 @@ public class UserController {
 
     @GetMapping("updateNotYourDescriptionById")
     public String updateNotYourDescriptionById(@AuthenticationPrincipal User user,
-                                               @RequestParam String description, @RequestParam Long userId, @RequestParam String password) {
+                                               @RequestParam Long userId, @RequestParam String password) {
         if (userService.findById(userId).isEmpty()) {
-            return "/users/UserDoesNotExist";
-        }
-        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
-            return "/users/youAreNotHigher";
+            return "/products/productDoesNotExist";
         }
         if (!passwordEncoder.matches(password, user.getPassword())) {
             return "/users/passwordsDoNotMatch";
         }
-        userService.updateDescriptionById(userId, description);
+        userService.updateDescriptionById(userId, "Description");
         return "redirect:/users/i/" + userId;
     }
 
