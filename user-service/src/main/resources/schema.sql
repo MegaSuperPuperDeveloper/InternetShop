@@ -9,6 +9,12 @@ CREATE TABLE IF NOT EXISTS users (
     description VARCHAR(1000) NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS user_tags (
+                                         user_id BIGINT NOT NULL,
+                                         tag VARCHAR(50) NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(idUser) ON DELETE CASCADE
+    );
+
 CREATE TABLE IF NOT EXISTS products (
     idProduct SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
@@ -19,17 +25,4 @@ CREATE TABLE IF NOT EXISTS products (
     price VARCHAR(50) NOT NULL,
     author_name VARCHAR(50) NOT NULL,
     author_id BIGINT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS tags (
-    id SERIAL PRIMARY KEY,
-    tag VARCHAR(50) NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS user_tags (
-    user_id BIGINT NOT NULL,
-    tag_id BIGINT NOT NULL,
-    PRIMARY KEY (user_id, tag_id),
-    FOREIGN KEY (user_id) REFERENCES users(idUser) ON DELETE CASCADE,
-    FOREIGN KEY (tag_id) REFERENCES roles(id) ON DELETE CASCADE
 );

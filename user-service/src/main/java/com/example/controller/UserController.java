@@ -309,33 +309,35 @@ public class UserController {
     }
     //endregion
 
-    //region Решить проблему с тегами
-    @PatchMapping("/{userId}/add/{tag}")
-    public ResponseEntity<Void> addTagById(@AuthenticationPrincipal User user,
-                                           @PathVariable Long userId, @PathVariable Tag tag) {
+    //region Tag change
+    @GetMapping("/addTag")
+    public String addTag() {
         userService.waitASecond();
-        if (userService.findById(userId).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        if (!user.getId().equals(userId)) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
-        userService.addTagToUser(userId, tag);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return "/users/addTag";
     }
 
-    @PatchMapping("/{userId}/remove/{tag}")
-    public ResponseEntity<Void> removeTagById(@AuthenticationPrincipal User user,
-                                              @PathVariable Long userId, @PathVariable Tag tag) {
+    @PostMapping("/addTagById")
+    public String addTagById(@AuthenticationPrincipal User user, @RequestParam Tag tag) {
+        if (user.getTags().contains(tag)) {
+            return "/users/tagExists";
+        }
+        userService.addTag(user.getId(), tag);
+        return "redirect:/users/i/" + user.getId();
+    }
+
+    @GetMapping("/removeTag")
+    public String removeTag() {
         userService.waitASecond();
-        if (userService.findById(userId).isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return "/users/removeTag";
+    }
+
+    @PostMapping("/removeTagById")
+    public String removeTagById(@AuthenticationPrincipal User user, @RequestParam Tag tag) {
+        if (user.getTags().contains(tag)) {
+            return "/users/tagDoesn'tExist";
         }
-        if (!user.getId().equals(userId)) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
-        userService.removeTagToUser(userId, tag);
-        return new ResponseEntity<>(HttpStatus.OK);
+        userService.removeTag(user.getId(), tag);
+        return "redirect:/users/i/" + user.getId();
     }
     //endregion
 

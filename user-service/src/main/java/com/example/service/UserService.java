@@ -87,21 +87,19 @@ public class UserService{
     }
 
     @Transactional
-    public void addTagToUser(Long userId, Tag tag) {
-        if (!userRepository.findById(userId).get().getTags().contains(tag)) {
-            Set<Tag> tags = userRepository.findById(userId).get().getTags();
-            tags.add(tag);
-            userRepository.updateTagsById(userId, tags);
-        }
+    public void addTag(Long userId, Tag tag) {
+        User user = userRepository.findById(userId).get();
+        Set<Tag> tags = user.getTags();
+        tags.add(tag);
+        userRepository.save(user);
     }
 
     @Transactional
-    public void removeTagToUser(Long userId, Tag tag) {
-        if (userRepository.findById(userId).get().getTags().contains(tag)) {
-            Set<Tag> tags = userRepository.findById(userId).get().getTags();
-            tags.remove(tag);
-            userRepository.updateTagsById(userId, tags);
-        }
+    public void removeTag(Long userId, Tag tag) {
+        User user = userRepository.findById(userId).get();
+        Set<Tag> tags = user.getTags();
+        tags.remove(tag);
+        userRepository.save(user);
     }
 
     //endregion

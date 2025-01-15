@@ -43,8 +43,4 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("UPDATE User u SET u.description = :description WHERE u.id = :id")
     void updateDescriptionById(Long id, String description);
 
-    @Modifying
-    @Query("UPDATE User u SET u.tags = :tags WHERE u.id = :id")
-    void updateTagsById(Long id, Set<Tag> tags);
-
 }

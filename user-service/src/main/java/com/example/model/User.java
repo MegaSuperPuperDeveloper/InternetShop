@@ -40,9 +40,10 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private Role role;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "tags", joinColumns = @JoinColumn(name = "id"))
+    @ElementCollection(targetClass = Tag.class, fetch = FetchType.EAGER)
+    @CollectionTable(name = "user_tags", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
+    @Column(name = "tag")
     private Set<Tag> tags = new HashSet<>();
 
     @Column(nullable = false)
