@@ -1,5 +1,6 @@
 package com.example.model;
 
+import com.example.enums.Currency;
 import com.example.enums.Tag;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -26,7 +27,10 @@ public class Product {
     private String description;
 
     @Column(nullable = false)
-    private BigDecimal price;
+    private String price;
+
+    @Column(nullable = false)
+    private Currency currency;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -43,10 +47,11 @@ public class Product {
     @Column(nullable = false, name = "phone_number")
     private String authorPhoneNumber;
 
-    public Product(String name, String description, BigDecimal price, Tag tag, String authorName, Long authorId, String authorPhoneNumber) {
+    public Product(String name, String description, String price, Currency currency, Tag tag, String authorName, Long authorId, String authorPhoneNumber) {
         this.name = name;
         this.description = description;
-        this.price = price;
+        this.currency = currency;
+        this.price = price + currency.getIcon();
         this.tag = tag;
         this.createdAt = LocalDateTime.now();
         this.authorName = authorName;

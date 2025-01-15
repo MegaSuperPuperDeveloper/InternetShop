@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS products (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     phone_number VARCHAR(15) NOT NULL,
     tag VARCHAR(50) NOT NULL,
-    price DECIMAL NOT NULL,
+    price VARCHAR(50) NOT NULL,
     author_name VARCHAR(50) NOT NULL,
     author_id BIGINT NOT NULL
 );

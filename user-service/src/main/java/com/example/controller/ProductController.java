@@ -1,5 +1,6 @@
 package com.example.controller;
 
+import com.example.enums.Currency;
 import com.example.enums.Tag;
 import com.example.model.Product;
 import com.example.model.User;
@@ -61,9 +62,13 @@ public class ProductController {
     public String publishProductById(@AuthenticationPrincipal User user,
                                      @RequestParam String name,
                                      @RequestParam String description,
-                                     @RequestParam BigDecimal price,
+                                     @RequestParam String price,
+                                     @RequestParam Currency currency,
                                      @RequestParam Tag tag) {
-        Product product = productService.addProduct(name, description, price, tag, user.getDisplayedUsername(), user.getId(), user.getPhoneNumber());
+        if (name == null || description == null || price == null || tag == null) {
+            return "/products/youMustFillEveryField";
+        }
+        Product product = productService.addProduct(name, description, price, currency, tag, user.getDisplayedUsername(), user.getId(), user.getPhoneNumber());
         return "redirect:/products/i/" + product.getId();
     }
     //endregion
@@ -186,7 +191,7 @@ public class ProductController {
 
     //endregion
 
-    //region Price change (СДЕЛАТЬ ВЫБОР ВАЛЮТЫ)
+    //region Price change
     @GetMapping("/updatePrice")
     public String updatePrice() {
         productService.waitASecond();

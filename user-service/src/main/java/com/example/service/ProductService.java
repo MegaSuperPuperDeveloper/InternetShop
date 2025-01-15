@@ -1,5 +1,6 @@
 package com.example.service;
 
+import com.example.enums.Currency;
 import com.example.enums.Tag;
 import com.example.model.Product;
 import com.example.repository.ProductRepository;
@@ -32,8 +33,8 @@ public class ProductService {
     }
     //endregion
 
-    public Product addProduct(String name, String description, BigDecimal price, Tag tag, String authorName, Long authorId, String authorPhoneNumber) {
-        return productRepository.save(new Product(name, description, price, tag, authorName, authorId, authorPhoneNumber));
+    public Product addProduct(String name, String description, String price, Currency currency, Tag tag, String authorName, Long authorId, String authorPhoneNumber) {
+        return productRepository.save(new Product(name, description, price, currency, tag, authorName, authorId, authorPhoneNumber));
     }
 
     public void deleteProductById(Long id) {

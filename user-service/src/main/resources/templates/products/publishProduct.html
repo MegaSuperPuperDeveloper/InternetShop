@@ -12,8 +12,14 @@
         Name: <input type="text" name="name"><br />
         Description: <input type="text" name="description"><br />
         Price: <input type="text" name="price"><br />
-        Phone Number: <input type="text" name="phoneNumber"><br />
-        <label for="tag">Tag:</label>
+        <label for="currency"></label>
+        <select name="currency" id="currency" required>
+            <option value="DOLLARS">Dollars</option>
+            <option value="EUROS">Euros</option>
+            <option value="RUBLES">Rubles</option>
+        </select>
+        <h1> </h1>
+        <label for="tag">Category: </label>
         <select name="tag" id="tag" required>
           <option value="CLOTHES">Clothes</option>
           <option value="HOUSE">House</option>
@@ -45,6 +51,7 @@
           <option value="ZOO_PRODUCTS">Zoo products</option>
           <option value="OPTICS">Optics</option>
         </select>
+        <h1> </h1>
     <button type="submit">Publish</button>
 </form>
 
