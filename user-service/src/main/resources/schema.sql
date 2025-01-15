@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS users (
     idUser SERIAL PRIMARY KEY,
     displayedUsername VARCHAR(50) NOT NULL,
+    phone_number VARCHAR(15) NOT NULL,
     username VARCHAR(50) NOT NULL,
     password VARCHAR(50) NOT NULL,
     roleName VARCHAR(30) NOT NULL,
@@ -13,6 +14,7 @@ CREATE TABLE IF NOT EXISTS products (
     name VARCHAR(50) NOT NULL,
     description VARCHAR(1000) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    phone_number VARCHAR(15) NOT NULL,
     tag VARCHAR(50) NOT NULL,
     price DECIMAL NOT NULL,
     author_name VARCHAR(50) NOT NULL,

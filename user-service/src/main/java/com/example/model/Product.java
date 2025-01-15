@@ -40,7 +40,10 @@ public class Product {
     @Column(nullable = false, name = "author_id")
     private Long authorId;
 
-    public Product(String name, String description, BigDecimal price, Tag tag, String authorName, Long authorId) {
+    @Column(nullable = false, name = "phone_number")
+    private String authorPhoneNumber;
+
+    public Product(String name, String description, BigDecimal price, Tag tag, String authorName, Long authorId, String authorPhoneNumber) {
         this.name = name;
         this.description = description;
         this.price = price;
@@ -48,6 +51,7 @@ public class Product {
         this.createdAt = LocalDateTime.now();
         this.authorName = authorName;
         this.authorId = authorId;
+        this.authorPhoneNumber = authorPhoneNumber;
     }
 
 }

@@ -36,6 +36,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     void updateRoleById(Long id, Role role);
 
     @Modifying
+    @Query("UPDATE Product p SET p.authorPhoneNumber = :authorPhoneNumber WHERE p.id = :id")
+    void updatePhoneNumberById(Long id, String authorPhoneNumber);
+
+    @Modifying
     @Query("UPDATE User u SET u.description = :description WHERE u.id = :id")
     void updateDescriptionById(Long id, String description);
 

@@ -50,8 +50,8 @@ public class UserService{
         userRepository.deleteById(userId);
     }
 
-    public User save(String username, String displayedUsername, String password) {
-        return userRepository.save(new User(displayedUsername, username.toLowerCase(), new BCryptPasswordEncoder().encode(password)));
+    public User save(String username, String displayedUsername, String password, String phoneNumber) {
+        return userRepository.save(new User(displayedUsername, username.toLowerCase(), new BCryptPasswordEncoder().encode(password), addPlusToNumber(phoneNumber)));
     }
 
     //region UPDATE
@@ -82,6 +82,11 @@ public class UserService{
     }
 
     @Transactional
+    public void updatePhoneNumberById(Long id, String phoneNumber) {
+        userRepository.updatePhoneNumberById(id, phoneNumber);
+    }
+
+    @Transactional
     public void addTagToUser(Long userId, Tag tag) {
         if (!userRepository.findById(userId).get().getTags().contains(tag)) {
             Set<Tag> tags = userRepository.findById(userId).get().getTags();
@@ -109,6 +114,13 @@ public class UserService{
         } catch (InterruptedException e) {
             System.out.println("Не удалось подождать секунду!");
         }
+    }
+
+    public String addPlusToNumber(String phoneNumber) {
+        if (!phoneNumber.split("")[0].equals("+")) {
+            return "+" + phoneNumber;
+        }
+        return phoneNumber;
     }
 
     public Optional<User> findByUsernameForCustomUserDetailsService(String username) {

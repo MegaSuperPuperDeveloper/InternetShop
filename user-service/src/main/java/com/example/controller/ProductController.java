@@ -63,7 +63,7 @@ public class ProductController {
                                      @RequestParam String description,
                                      @RequestParam BigDecimal price,
                                      @RequestParam Tag tag) {
-        Product product = productService.addProduct(name, description, price, tag, user.getDisplayedUsername(), user.getId());
+        Product product = productService.addProduct(name, description, price, tag, user.getDisplayedUsername(), user.getId(), user.getPhoneNumber());
         return "redirect:/products/i/" + product.getId();
     }
     //endregion
@@ -99,13 +99,13 @@ public class ProductController {
     //endregion
 
     //region Name change
-    @GetMapping("/updateName")
+    @GetMapping("/updateYourName")
     public String updateYourUsername() {
         productService.waitASecond();
-        return "/products/updateName";
+        return "/products/updateYourNameById";
     }
 
-    @PostMapping("/updateNameById")
+    @PostMapping("/updateYourNameById")
     public String updateYourUsernameById(@AuthenticationPrincipal User user,
                                          @RequestParam String password, @RequestParam String newName, @RequestParam Long productId) {
         if (productService.findById(productId).isEmpty()) {
@@ -114,31 +114,42 @@ public class ProductController {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             return "/users/passwordsDoNotMatch";
         }
-        if (!productService.findById(productId).get().getAuthorId().equals(user.getId())) {
-
-            int owner = userService.findById(productService.findById(productId).get().getAuthorId()).get().role().getHierarchy();
-            int userWhoWantsDeleteProduct = userService.findById(user.getId()).get().role().getHierarchy();
-
-            if (userWhoWantsDeleteProduct <= owner) {
-                return "/users/youAreNotHigher";
-            }
-            productService.updateNameById(productId, "Name");
-            return "redirect:/products/i/" + productId;
-
-        }
         productService.updateNameById(productId, newName);
         return "redirect:/products/i/" + productId;
     }
+
+    @GetMapping("/updateNotYourName")
+    public String updateNotYourName() {
+        productService.waitASecond();
+        return "/products/updateNotYourName";
+    }
+
+    @PostMapping("/updateNotYourNameById")
+    public String updateNotYourNameById(@AuthenticationPrincipal User user,
+                                        @RequestParam String password, @RequestParam Long productId) {
+        if (productService.findById(productId).isEmpty()) {
+            return "/products/productDoesNotExist";
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return "/users/passwordsDoNotMatch";
+        }
+        if (user.getRole().getHierarchy() <= userService.findById(productService.findById(productId).get().getAuthorId()).get().role().getHierarchy()) {
+            return "/users/youAreNotHigher";
+        }
+        productService.updateNameById(productId, "Product");
+        return "redirect:/products/i/" + productId;
+    }
+
     //endregion
 
     //region Description
-    @GetMapping("/updateDescription")
+    @GetMapping("/updateYourDescription")
     public String updateDescription() {
         productService.waitASecond();
-        return "/products/updateDescription";
+        return "/products/updateYourDescription";
     }
 
-    @PostMapping("/updateDescriptionById")
+    @PostMapping("/updateYourDescriptionById")
     public String updateDescriptionById(@AuthenticationPrincipal User user,
                                         @RequestParam String newDescription, @RequestParam Long productId, @RequestParam String password) {
         if (productService.findById(productId).isEmpty()) {
@@ -147,21 +158,32 @@ public class ProductController {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             return "/users/passwordsDoNotMatch";
         }
-        if (!productService.findById(productId).get().getAuthorId().equals(user.getId())) {
-
-            int owner = userService.findById(productService.findById(productId).get().getAuthorId()).get().role().getHierarchy();
-            int userWhoWantsDeleteProduct = userService.findById(user.getId()).get().role().getHierarchy();
-
-            if (userWhoWantsDeleteProduct <= owner) {
-                return "/users/youAreNotHigher";
-            }
-            productService.updateDescriptionById(productId, "Description");
-            return "redirect:/products/i/" + productId;
-
-        }
         productService.updateDescriptionById(productId, newDescription);
         return "redirect:/products/i/" + productId;
     }
+
+    @GetMapping("/updateNotYourDescription")
+    public String updateYourDescription() {
+        productService.waitASecond();
+        return "/products/updateNotYourDescription";
+    }
+
+    @PostMapping("/updateNotYourDescriptionById")
+    public String updateNotYourDescriptionById(@AuthenticationPrincipal User user,
+                                               @RequestParam String password, @RequestParam Long productId) {
+        if (productService.findById(productId).isEmpty()) {
+            return "/products/productDoesNotExist";
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return "/users/passwordsDoNotMatch";
+        }
+        if (user.getRole().getHierarchy() <= userService.findById(productService.findById(productId).get().getAuthorId()).get().role().getHierarchy()) {
+            return "/users/youAreNotHigher";
+        }
+        productService.updateDescriptionById(productId, "Description");
+        return "redirect:/products/i/" + productId;
+    }
+
     //endregion
 
     //region Price change (СДЕЛАТЬ ВЫБОР ВАЛЮТЫ)

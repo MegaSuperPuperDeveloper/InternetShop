@@ -63,22 +63,6 @@ public class UserController {
     }
     //endregion
 
-    @PostMapping("/{displayedUsername}/{username}/{password}/{passwordRetry}")
-    public ResponseEntity<User> createUser(@PathVariable String displayedUsername,
-                                           @PathVariable String username,
-                                           @PathVariable String password,
-                                           @PathVariable String passwordRetry) {
-        if (userService.findByUsername(username).isPresent()) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
-        if (!password.equals(passwordRetry)) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
-        userService.waitASecond();
-        userService.save(username, displayedUsername, password);
-        return new ResponseEntity<>(HttpStatus.CREATED);
-    }
-
     //region Registration
     @GetMapping("/registration")
     public String registration() {
@@ -87,7 +71,8 @@ public class UserController {
     }
 
     @PostMapping("/registration")
-    public String addUser(User user, Model model, @RequestParam String password, @RequestParam String passwordRetry) {
+    public String addUser(User user, Model model,
+                          @RequestParam String password, @RequestParam String passwordRetry, @RequestParam String phoneNumber) {
         if (userService.findByUsername(user.getUsername()).isPresent()) {
             return "/users/loginIsBusy";
         }
@@ -97,7 +82,7 @@ public class UserController {
         if (isPasswordCorrect(password)) {
             return "/users/PasswordIsLesserThenEight";
         }
-        userService.save(user.getDisplayedUsername(), user.getUsername(), user.getPassword());
+        userService.save(user.getDisplayedUsername(), user.getUsername(), user.getPassword(), phoneNumber);
         return getUsers(model);
     }
     //endregion
@@ -279,6 +264,49 @@ public class UserController {
         return "redirect:/users/i/" + userId;
     }
 
+    //endregion
+
+    //region Phone Number change
+    @GetMapping("/updateYourPhoneNumber")
+    public String updateYourPhoneNumber() {
+        userService.waitASecond();
+        return "/users/updateYourPhoneNumber";
+    }
+
+    @PostMapping("/updateYourPhoneNumberById")
+    public String updateYourPhoneNumberById(@AuthenticationPrincipal User user,
+                                            @RequestParam String newPhoneNumber, @RequestParam Long productId, @RequestParam String password) {
+        if (userService.findById(productId).isEmpty()) {
+            return "/products/productDoesNotExist";
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return "/users/passwordsDoNotMatch";
+        }
+        userService.updatePhoneNumberById(productId, newPhoneNumber);
+        return "redirect:/products/i/" + productId;
+    }
+
+    @GetMapping("/updateNotYourPhoneNumber")
+    public String updateNotYourPhoneNumber() {
+        userService.waitASecond();
+        return "/users/updateNotYourDescription";
+    }
+
+    @PostMapping("/updateNotYourPhoneNumberById")
+    public String updateNotYourPhoneNumberById(@AuthenticationPrincipal User user,
+                                               @RequestParam String password, @RequestParam Long userId) {
+        if (userService.findById(userId).isEmpty()) {
+            return "/products/productDoesNotExist";
+        }
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return "/users/passwordsDoNotMatch";
+        }
+        if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy()) {
+            return "/users/youAreNotHigher";
+        }
+        userService.updatePhoneNumberById(userId, "Number has been deleted");
+        return "redirect:/products/i/" + userId;
+    }
     //endregion
 
     //region Решить проблему с тегами

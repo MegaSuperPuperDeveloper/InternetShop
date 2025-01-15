@@ -29,6 +29,10 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     void updatePriceById(Long id, BigDecimal price);
 
     @Modifying
+    @Query("UPDATE Product p SET p.authorPhoneNumber = :authorPhoneNumber WHERE p.id = :id")
+    void updatePhoneNumberById(Long id, String authorPhoneNumber);
+
+    @Modifying
     @Query("UPDATE Product p SET p.tag = :tag WHERE p.id = :id")
     void updateTagById(Long id, Tag tag);
 

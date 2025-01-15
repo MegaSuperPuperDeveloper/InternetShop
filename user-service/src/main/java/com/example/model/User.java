@@ -35,6 +35,9 @@ public class User implements UserDetails {
     private String password;
 
     @Column(nullable = false)
+    private String phoneNumber;
+
+    @Column(nullable = false)
     private Role role;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -48,12 +51,13 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String description;
 
-    public User(String displayedUsername, String username, String password) {
+    public User(String displayedUsername, String username, String password, String phoneNumber) {
         this.displayedUsername = displayedUsername;
         this.username = username;
         this.password = password;
         this.createdAt = LocalDateTime.now();
         this.description = "";
+        this.phoneNumber = phoneNumber;
         this.role = Role.ROLE_USER;
     }
 
