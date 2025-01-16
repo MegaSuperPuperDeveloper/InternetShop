@@ -6,6 +6,7 @@ import com.example.enums.Tag;
 import com.example.model.User;
 import com.example.service.UserService;
 import lombok.AllArgsConstructor;
+import org.keycloak.admin.client.Keycloak;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -83,7 +84,7 @@ public class UserController {
             return "/users/PasswordIsLesserThenEight";
         }
         userService.save(user.getDisplayedUsername(), user.getUsername(), user.getPassword(), phoneNumber);
-        return getUsers(model);
+        return "redirect:/products";
     }
     //endregion
 
