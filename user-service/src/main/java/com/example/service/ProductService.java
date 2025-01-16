@@ -12,6 +12,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @AllArgsConstructor
@@ -22,6 +25,17 @@ public class ProductService {
     //region READ
     public List<Product> getProducts() {
         return productRepository.findAll();
+    }
+
+    public List<Product> getProductsByTag(Set<Tag> tags) {
+        return Stream.concat(
+                productRepository.findAll()
+                        .stream()
+                        .filter(p -> tags.contains(p.getTag())),
+                productRepository.findAll()
+                        .stream()
+                        .filter(p -> !tags.contains(p.getTag()))
+        ).collect(Collectors.toList());
     }
 
     public Optional<Product> findById(Long id) {

@@ -35,7 +35,9 @@ public class SecurityConfig {
                         .requestMatchers("/users/registration").permitAll()
                         .requestMatchers(HttpMethod.PATCH).permitAll()
                     .anyRequest().authenticated())
-                .formLogin(Customizer.withDefaults())
+                .formLogin(c -> c
+                    .defaultSuccessUrl("/products", true)
+                    .permitAll())
                 .userDetailsService(userDetailsService)
                 .build();
     }

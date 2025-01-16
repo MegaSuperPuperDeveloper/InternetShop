@@ -26,9 +26,13 @@ public class ProductController {
 
     //region READ
     @GetMapping
-    public String getAllProducts(Model model) {
+    public String getProducts(@AuthenticationPrincipal User user, Model model) {
         productService.waitASecond();
-        model.addAttribute("products", productService.getProducts());
+        if (user == null) {
+            model.addAttribute("products", productService.getProducts());
+        } else {
+            model.addAttribute("products", productService.getProductsByTag(user.getTags()));
+        }
         return "/products/products";
     }
 
