@@ -69,7 +69,7 @@ public class ProductController {
                                      @RequestParam String price,
                                      @RequestParam Currency currency,
                                      @RequestParam Tag tag) {
-        if (name == null || description == null || price == null || tag == null) {
+        if (name.isEmpty() || description.isEmpty() || price.isEmpty()) {
             return "/products/youMustFillEveryField";
         }
         Product product = productService.addProduct(name, description, price, currency, tag, user.getDisplayedUsername(), user.getId(), user.getPhoneNumber());
