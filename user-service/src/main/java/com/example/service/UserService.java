@@ -7,10 +7,13 @@ import com.example.enums.Tag;
 import com.example.model.User;
 import com.example.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.time.LocalDateTime;
+
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,6 +22,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class UserService{
 
+    private final JwtService jwtService;
+    private final AuthenticationManager authManager;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
@@ -52,6 +57,15 @@ public class UserService{
 
     public User save(String username, String displayedUsername, String password, String phoneNumber) {
         return userRepository.save(new User(displayedUsername, username.toLowerCase(), new BCryptPasswordEncoder().encode(password), addPlusToNumber(phoneNumber)));
+    }
+
+    public String verify(User user) {
+        Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
+        if (authentication.isAuthenticated()) {
+            return jwtService.generateToken(user.getUsername());
+        } else {
+            return "fail";
+        }
     }
 
     //region UPDATE

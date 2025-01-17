@@ -25,8 +25,8 @@ spring:
         jwt:
           issuer-uri: "http://localhost:8080/realms/master"
 
-logging:
-  level:
-    org:
-      springframework:
-        security: DEBUG
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        security: DEBUG
