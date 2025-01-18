@@ -22,8 +22,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class UserService{
 
-    private final JwtService jwtService;
-    private final AuthenticationManager authManager;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
@@ -57,15 +55,6 @@ public class UserService{
 
     public User save(String username, String displayedUsername, String password, String phoneNumber) {
         return userRepository.save(new User(displayedUsername, username.toLowerCase(), new BCryptPasswordEncoder().encode(password), addPlusToNumber(phoneNumber)));
-    }
-
-    public String verify(User user) {
-        Authentication authentication = authManager.authenticate(new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword()));
-        if (authentication.isAuthenticated()) {
-            return jwtService.generateToken(user.getUsername());
-        } else {
-            return "fail";
-        }
     }
 
     //region UPDATE
@@ -133,10 +122,6 @@ public class UserService{
             return "+" + phoneNumber;
         }
         return phoneNumber;
-    }
-
-    public Optional<User> findByUsernameForCustomUserDetailsService(String username) {
-        return userRepository.findByUsername(username);
     }
     //endregion
 

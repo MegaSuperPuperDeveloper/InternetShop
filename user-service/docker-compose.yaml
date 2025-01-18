@@ -1,11 +1,44 @@
-version: '3'
+version: '3.8'
 
 services:
-  db:
-    image: postgres:13
+  postgres:
+    image: postgres:17
+    container_name: postgres
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: sa
-      POSTGRES_DB: users
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak_password
+      POSTGRES_DB: keycloak_db
     ports:
       - "5432:5432"
+    networks:
+      - keycloak-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:20.0.3
+    container_name: keycloak
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak_db
+      DB_USER: keycloak
+      DB_PASSWORD: keycloak_password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    command:
+      - "start-dev"
+    networks:
+      - keycloak-network
+    volumes:
+      - keycloak_data:/opt/keycloak/standalone/data
+
+volumes:
+  postgres-data:
+  keycloak_data:
+
+networks:
+  keycloak-network:
+    driver: bridge

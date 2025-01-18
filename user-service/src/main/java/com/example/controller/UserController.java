@@ -4,26 +4,14 @@ import com.example.dto.UserDTO;
 import com.example.enums.Role;
 import com.example.enums.Tag;
 import com.example.model.User;
-import com.example.service.JwtService;
+import com.example.service.KeycloakService;
 import com.example.service.UserService;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import lombok.AllArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Controller
@@ -32,7 +20,18 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
-    private PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+    private final KeycloakService keycloakService;
+
+    @GetMapping("/owner")
+    public String owner() {
+        return "owner";
+    }
+
+    @GetMapping("/authenticated")
+    public String authenticated() {
+        return "authenticated";
+    }
 
     //region Read
     @GetMapping
@@ -80,17 +79,14 @@ public class UserController {
     }
 
     @PostMapping("/registration")
-    public String addUser(User user,
+    public String addUser(@RequestParam String displayedUsername, @RequestParam String username,
                           @RequestParam String password, @RequestParam String passwordRetry, @RequestParam String phoneNumber) {
-        if (userService.findByUsername(user.getUsername()).isPresent())
+        if (userService.findByUsername(username).isPresent())
             return "/users/loginIsBusy";
         if (!password.equals(passwordRetry))
             return "/users/passwordsDoNotMatch";
-        if (isPasswordCorrect(password))
-            return "/users/PasswordIsLesserThenEight";
-        if (isValidPhoneNumber(phoneNumber))
-            return "/users/phoneNumberIssIncorrect";
-        userService.save(user.getDisplayedUsername(), user.getUsername(), user.getPassword(), phoneNumber);
+        keycloakService.createUser(username, password, "InternetShop");
+        userService.save(username, displayedUsername, password, phoneNumber);
         return "redirect:/products";
     }
     //endregion
@@ -327,14 +323,6 @@ public class UserController {
     }
     //endregion
 
-    //region Other Functions
-    public boolean isPasswordCorrect(String password) {
-        return password.matches("[a-zA-Z0-9_]+");
-    }
-
-    public boolean isValidPhoneNumber(String phoneNumber) {
-        return phoneNumber != null && phoneNumber.matches("\\+?[0-9]{10,15}");
-    }
     //endregion
 
 }

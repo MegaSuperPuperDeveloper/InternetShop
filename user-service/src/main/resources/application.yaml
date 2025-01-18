@@ -10,9 +10,9 @@ spring:
   application:
     name: user-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/users
-    username: myuser
-    password: sa
+    url: jdbc:postgresql://localhost:5432/keycloak_db
+    username: keycloak
+    password: keycloak_password
     driver-class-name: org.postgresql.Driver
   jpa:
     database: POSTGRESQL
@@ -23,10 +23,14 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: "http://localhost:8080/realms/master"
-
-#logging:
-#  level:
-#    org:
-#      springframework:
-#        security: DEBUG
+          issuer-uri: "http://localhost:8080/realms/InternetShop"
+      client:
+        provider:
+          keycloak:
+            issuer-uri: "http://localhost:8080/realms/InternetShop"
+            user-name-attribute: preferred_username
+        registration:
+          keycloak:
+            client-id: springsecurity
+            client-secret: 2Rh5WaRAyY4LhjN0WtG3VM4ARa7aMApS
+            scope: openid
