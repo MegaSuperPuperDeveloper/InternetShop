@@ -9,6 +9,7 @@ import com.example.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,11 @@ public class ProductController {
 
     //region READ
     @GetMapping
-    public String getProducts(@AuthenticationPrincipal User user, Model model) {
+    public String getProducts(@AuthenticationPrincipal OidcUser oidcUser, Model model) {
+        String keycloakId = oidcUser.getSubject();
+
+        User user = userService.findByKeycloakId(keycloakId).get();
+
         productService.waitASecond();
         if (user == null) {
             model.addAttribute("products", productService.getProducts());

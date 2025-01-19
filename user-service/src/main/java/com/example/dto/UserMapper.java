@@ -1,10 +1,10 @@
 package com.example.dto;
 
 import com.example.model.User;
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-@NoArgsConstructor
+@AllArgsConstructor
 @Component
 public class UserMapper {
 

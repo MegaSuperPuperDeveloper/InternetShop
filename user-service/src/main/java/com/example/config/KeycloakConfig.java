@@ -10,22 +10,34 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class KeycloakConfig {
 
+    @Value("${server-url}")
+    private String serverUrl;
+
     @Value("${spring.security.oauth2.client.registration.keycloak.client-id}")
     private String clientId;
 
     @Value("${spring.security.oauth2.client.registration.keycloak.client-secret}")
     private String clientSecret;
 
+    @Value("${realm}")
+    private String realm;
+
+    @Value("${name}")
+    private String name;
+
+    @Value("${password}")
+    private String password;
+
     @Bean
     public Keycloak keycloak() {
         return KeycloakBuilder.builder()
-                .serverUrl("http://localhost:8080/auth")
-                .realm("InternetShop")
+                .serverUrl(serverUrl)
+                .realm(realm)
                 .grantType(OAuth2Constants.PASSWORD)
                 .clientId(clientId)
                 .clientSecret(clientSecret)
-                .username("admin")
-                .password("admin")
+                .username(name)
+                .password(password)
                 .scope("openid")
                 .build();
     }

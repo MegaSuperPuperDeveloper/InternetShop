@@ -9,6 +9,7 @@ import com.example.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -22,16 +23,6 @@ public class UserController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final KeycloakService keycloakService;
-
-    @GetMapping("/owner")
-    public String owner() {
-        return "owner";
-    }
-
-    @GetMapping("/authenticated")
-    public String authenticated() {
-        return "authenticated";
-    }
 
     //region Read
     @GetMapping
@@ -85,8 +76,9 @@ public class UserController {
             return "/users/loginIsBusy";
         if (!password.equals(passwordRetry))
             return "/users/passwordsDoNotMatch";
-        keycloakService.createUser(username, password, "InternetShop");
-        userService.save(username, displayedUsername, password, phoneNumber);
+        User user = new User(username, displayedUsername, passwordEncoder.encode(password), phoneNumber);
+        userService.save(user);
+        keycloakService.createUser(user, password, "master");
         return "redirect:/products";
     }
     //endregion
@@ -97,15 +89,19 @@ public class UserController {
         userService.waitASecond();
         return "/users/deleteNotYourUser";
     }
-
     @GetMapping("/deleteNotYourUserById")
-    public String deleteUser(@AuthenticationPrincipal User user, Long userId, Model model, @RequestParam String password) {
-        if (userService.findById(userId).isEmpty())
-            return "/users/UserDoesNotExist";
-        if (!passwordEncoder.matches(user.getPassword(), password))
+    public String deleteUser(@AuthenticationPrincipal OidcUser oidcUser, Long userId, @RequestParam String password) {
+        String keycloakUsersId = oidcUser.getSubject();
+        String keycloakIdWhoNeedDelete = userService.findUserById(userId).get().getKeycloakId();
+
+        User user = userService.findByKeycloakId(keycloakUsersId).get();
+
+        if (!passwordEncoder.matches(password, user.getPassword()))
             return "/users/passwordsDoNotMatch";
         if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy())
             return "/users/youAreNotHigher";
+
+        keycloakService.deleteUserByKeycloakId(keycloakIdWhoNeedDelete, "master");
         userService.deleteById(userId);
         return "redirect:/users";
     }
@@ -117,14 +113,18 @@ public class UserController {
     }
 
     @GetMapping("/deleteYourUserById")
-    public String deleteYourUser(@AuthenticationPrincipal User user, @RequestParam String password) {
-        userService.deleteById(user.getId());
-        if (!passwordEncoder.matches(password, user.getPassword())) {
+    public String deleteYourUser(@RequestParam String password, @AuthenticationPrincipal OidcUser oidcUser) {
+        String keycloakId = oidcUser.getSubject();
+
+        User user = userService.findByKeycloakId(keycloakId).get();
+
+        if (!passwordEncoder.matches(password, user.getPassword()))
             return "/users/passwordsDoNotMatch";
-        }
+
+        keycloakService.deleteUserByKeycloakId(keycloakId, "master");
+        userService.deleteById(user.getId());
         return "redirect:/users";
     }
-
     //endregion
 
     //region Password Change
@@ -141,6 +141,7 @@ public class UserController {
             return "/users/passwordsDoNotMatch";
         if (!newPassword.equals(retryPassword))
             return "/users/newPasswordsDoNotMatch";
+        keycloakService.updatePassword(user.getId().toString(), password, "master");
         userService.updatePasswordById(user.getId(), newPassword);
         return "redirect:/users/i/" + user.getId();
     }
@@ -159,6 +160,10 @@ public class UserController {
         if (!passwordEncoder.matches(password, user.getPassword())) {
             return "/users/passwordsDoNotMatch";
         }
+        if (userService.findByUsername(username).isPresent()) {
+            return "/users/loginIsBusy";
+        }
+        keycloakService.updateUsername(user.getId().toString(), username, "master");
         userService.updateLoginById(user.getId(), username);
         return "redirect:/users/i/" + user.getId();
     }
@@ -228,8 +233,12 @@ public class UserController {
     }
 
     @GetMapping("/updateYourDescriptionById")
-    public String updateDescriptionById(@AuthenticationPrincipal User user,
+    public String updateDescriptionById(@AuthenticationPrincipal OidcUser oidcUser,
                                         @RequestParam String description, @RequestParam String password) {
+        String keycloakId = oidcUser.getSubject();
+
+        User user = userService.findByKeycloakId(keycloakId).get();
+
         if (!passwordEncoder.matches(password, user.getPassword()))
             return "/users/passwordsDoNotMatch";
         userService.updateDescriptionById(user.getId(), description);

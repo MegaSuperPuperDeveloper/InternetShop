@@ -23,14 +23,21 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: "http://localhost:8080/realms/InternetShop"
+          issuer-uri: "http://localhost:8080/realms/master"
       client:
         provider:
           keycloak:
-            issuer-uri: "http://localhost:8080/realms/InternetShop"
+            issuer-uri: "http://localhost:8080/realms/master"
             user-name-attribute: preferred_username
         registration:
           keycloak:
             client-id: springsecurity
-            client-secret: 2Rh5WaRAyY4LhjN0WtG3VM4ARa7aMApS
+            client-secret: jsexlfuzkclYQmIxPjKYg7etCPBcjuO8
             scope: openid
+            authorization-grant-type: authorization_code
+            redirect-uri: "http://localhost:8081/login/oauth2/code/keycloak"
+
+realm: master
+server-url: "http://localhost:8080"
+name: admin
+password: admin

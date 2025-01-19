@@ -1,21 +1,20 @@
 package com.example.repository;
 
 import com.example.enums.Role;
-import com.example.enums.Tag;
 import com.example.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByDisplayedUsername(String displayedUsername);
+
+    Optional<User> findByKeycloakId(String keycloakId);
 
     Optional<User> findByUsername(String username);
 
@@ -42,5 +41,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("UPDATE User u SET u.description = :description WHERE u.id = :id")
     void updateDescriptionById(Long id, String description);
+
+    @Modifying
+    @Query("UPDATE User u SET u.keycloakId = :keycloakId WHERE u.id = :id")
+    void updateKeycloakIdById(Long id, String keycloakId);
 
 }

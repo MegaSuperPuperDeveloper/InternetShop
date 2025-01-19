@@ -7,13 +7,9 @@ import com.example.enums.Tag;
 import com.example.model.User;
 import com.example.repository.UserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,9 +28,21 @@ public class UserService{
                 .collect(Collectors.toList());
     }
 
+    public Iterable<User> findAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public Optional<User> findUserById(Long userId) {
+        return userRepository.findById(userId);
+    }
+
     public Optional<UserDTO> findById(Long userId) {
         return userRepository.findById(userId)
                 .map(userMapper::mapToDTO);
+    }
+
+    public Optional<User> findByKeycloakId(String uuid) {
+        return userRepository.findByKeycloakId(uuid);
     }
 
     public Optional<UserDTO> findByUsername(String username) {
@@ -53,8 +61,8 @@ public class UserService{
         userRepository.deleteById(userId);
     }
 
-    public User save(String username, String displayedUsername, String password, String phoneNumber) {
-        return userRepository.save(new User(displayedUsername, username.toLowerCase(), new BCryptPasswordEncoder().encode(password), addPlusToNumber(phoneNumber)));
+    public User save(User user) {
+        return userRepository.save(user);
     }
 
     //region UPDATE
@@ -87,6 +95,11 @@ public class UserService{
     @Transactional
     public void updatePhoneNumberById(Long id, String phoneNumber) {
         userRepository.updatePhoneNumberById(id, phoneNumber);
+    }
+
+    @Transactional
+    public void updateKeycloakIdById(Long id, String phoneNumber) {
+        userRepository.updateKeycloakIdById(id, phoneNumber);
     }
 
     @Transactional

@@ -21,9 +21,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -49,6 +47,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/products/u/**").permitAll()
                         .requestMatchers("/users/registration").permitAll()
                         .requestMatchers(HttpMethod.PATCH).permitAll()
+                        //
                         .anyRequest().authenticated())
                 .userDetailsService(userDetailsService)
                 .oauth2ResourceServer(oauth2 -> oauth2
