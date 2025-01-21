@@ -24,6 +24,16 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final KeycloakService keycloakService;
 
+    @GetMapping("/authenticated")
+    public String authenticated() {
+        return "authenticated";
+    }
+
+    @GetMapping("/owner")
+    public String owner() {
+        return "owner";
+    }
+
     //region Read
     @GetMapping
     public String getUsers(Model model) {
@@ -79,7 +89,7 @@ public class UserController {
         User user = new User(username, displayedUsername, passwordEncoder.encode(password), phoneNumber);
         userService.save(user);
         keycloakService.createUser(user, password, "master");
-        return "redirect:/products";
+        return "redirect:/users/i/" + user.getId();
     }
     //endregion
 
@@ -89,6 +99,7 @@ public class UserController {
         userService.waitASecond();
         return "/users/deleteNotYourUser";
     }
+
     @GetMapping("/deleteNotYourUserById")
     public String deleteUser(@AuthenticationPrincipal OidcUser oidcUser, Long userId, @RequestParam String password) {
         String keycloakUsersId = oidcUser.getSubject();
@@ -135,13 +146,20 @@ public class UserController {
     }
 
     @GetMapping("/updatePasswordById")
-    public String updatePasswordById(@AuthenticationPrincipal User user, @RequestParam String password,
+    public String updatePasswordById(@AuthenticationPrincipal OidcUser oidcUser, @RequestParam String password,
                                      @RequestParam String newPassword, @RequestParam String retryPassword) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (!passwordEncoder.matches(password, user.getPassword()))
             return "/users/passwordsDoNotMatch";
         if (!newPassword.equals(retryPassword))
             return "/users/newPasswordsDoNotMatch";
-        keycloakService.updatePassword(user.getId().toString(), password, "master");
+
+        keycloakService.updatePassword(keycloakId, newPassword, "master");
         userService.updatePasswordById(user.getId(), newPassword);
         return "redirect:/users/i/" + user.getId();
     }
@@ -155,16 +173,22 @@ public class UserController {
     }
 
     @GetMapping("/updateLoginById")
-    public String updateLoginById(@AuthenticationPrincipal User user,
+    public String updateLoginById(@AuthenticationPrincipal OidcUser oidcUser,
                                   @RequestParam String username, @RequestParam String password) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (!passwordEncoder.matches(password, user.getPassword())) {
             return "/users/passwordsDoNotMatch";
         }
         if (userService.findByUsername(username).isPresent()) {
             return "/users/loginIsBusy";
         }
-        keycloakService.updateUsername(user.getId().toString(), username, "master");
         userService.updateLoginById(user.getId(), username);
+        keycloakService.updateUsername(keycloakId, username,"master");
         return "redirect:/users/i/" + user.getId();
     }
     //endregion
@@ -177,8 +201,14 @@ public class UserController {
     }
 
     @GetMapping("/updateYourUsernameById")
-    public String updateUsernameById(@AuthenticationPrincipal User user,
+    public String updateUsernameById(@AuthenticationPrincipal OidcUser oidcUser,
                                      @RequestParam String password, @RequestParam String displayedUsername) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (!passwordEncoder.matches(password, user.getPassword()))
             return "/users/passwordsDoNotMatch";
         userService.updateDisplayedUsernameById(user.getId(), displayedUsername);
@@ -192,8 +222,14 @@ public class UserController {
     }
 
     @GetMapping("/updateNotYourUsernameById")
-    public String updateNotYourUsernameById(@AuthenticationPrincipal User user, @RequestParam Long userId,
+    public String updateNotYourUsernameById(@AuthenticationPrincipal OidcUser oidcUser, @RequestParam Long userId,
                                             @RequestParam String password) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (userService.findById(userId).isEmpty())
             return "/products/productDoesNotExist";
         if (!passwordEncoder.matches(password, user.getPassword()))
@@ -211,7 +247,13 @@ public class UserController {
     }
 
     @GetMapping("/updateRoleById")
-    public String updateRoleById(@AuthenticationPrincipal User user, @RequestParam Role role, @RequestParam Long userId) {
+    public String updateRoleById(@AuthenticationPrincipal OidcUser oidcUser, @RequestParam Role role, @RequestParam Long userId) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (userService.findById(userId).isEmpty())
             return "/users/UserDoesNotExist";
         if (user.getRole().getHierarchy() <= role.getHierarchy())
@@ -220,7 +262,9 @@ public class UserController {
             return "/users/userHasThisRole";
         if (user.getRole().getHierarchy() <= userService.findById(userId).get().role().getHierarchy())
             return "/users/youAreNotHigher";
+
         userService.updateRoleById(userId, role);
+        keycloakService.updateRole(keycloakId, role.getSystemName(),"master");
         return "redirect:/users/i/" + userId;
     }
     //endregion
@@ -252,8 +296,14 @@ public class UserController {
     }
 
     @GetMapping("updateNotYourDescriptionById")
-    public String updateNotYourDescriptionById(@AuthenticationPrincipal User user,
+    public String updateNotYourDescriptionById(@AuthenticationPrincipal OidcUser oidcUser,
                                                @RequestParam Long userId, @RequestParam String password) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (userService.findById(userId).isEmpty())
             return "/products/productDoesNotExist";
         if (!passwordEncoder.matches(password, user.getPassword()))
@@ -272,8 +322,14 @@ public class UserController {
     }
 
     @PostMapping("/updateYourPhoneNumberById")
-    public String updateYourPhoneNumberById(@AuthenticationPrincipal User user,
+    public String updateYourPhoneNumberById(@AuthenticationPrincipal OidcUser oidcUser,
                                             @RequestParam String newPhoneNumber, @RequestParam Long productId, @RequestParam String password) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (userService.findById(productId).isEmpty())
             return "/products/productDoesNotExist";
         if (!passwordEncoder.matches(password, user.getPassword()))
@@ -289,8 +345,14 @@ public class UserController {
     }
 
     @PostMapping("/updateNotYourPhoneNumberById")
-    public String updateNotYourPhoneNumberById(@AuthenticationPrincipal User user,
+    public String updateNotYourPhoneNumberById(@AuthenticationPrincipal OidcUser oidcUser,
                                                @RequestParam String password, @RequestParam Long userId) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (userService.findById(userId).isEmpty())
             return "/products/productDoesNotExist";
         if (!passwordEncoder.matches(password, user.getPassword()))
@@ -310,7 +372,13 @@ public class UserController {
     }
 
     @PostMapping("/addTagById")
-    public String addTagById(@AuthenticationPrincipal User user, @RequestParam Tag tag) {
+    public String addTagById(@AuthenticationPrincipal OidcUser oidcUser, @RequestParam Tag tag) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (user.getTags().contains(tag))
             return "/users/tagExists";
         userService.addTag(user.getId(), tag);
@@ -324,14 +392,18 @@ public class UserController {
     }
 
     @PostMapping("/removeTagById")
-    public String removeTagById(@AuthenticationPrincipal User user, @RequestParam Tag tag) {
+    public String removeTagById(@AuthenticationPrincipal OidcUser oidcUser, @RequestParam Tag tag) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (user.getTags().contains(tag))
             return "/users/tagDoesn'tExist";
         userService.removeTag(user.getId(), tag);
         return "redirect:/users/i/" + user.getId();
     }
-    //endregion
-
     //endregion
 
 }

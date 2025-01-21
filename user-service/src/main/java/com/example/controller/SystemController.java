@@ -13,7 +13,7 @@ public class SystemController {
     private final UserService userService;
 
     @GetMapping("/notDto")
-    public Iterable<User> owner() {
+    public Iterable<User> getAllUsersWithAllData() {
         return userService.findAllUsers();
     }
 }

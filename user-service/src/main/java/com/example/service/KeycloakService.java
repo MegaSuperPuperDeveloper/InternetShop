@@ -7,6 +7,7 @@ import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,7 +33,6 @@ public class KeycloakService {
         credential.setTemporary(false);
 
         userRepresentation.setCredentials(Collections.singletonList(credential));
-        userRepresentation.setRealmRoles(Collections.singletonList("ROLE_USER"));
 
         Response response = keycloak.realm(realm).users().create(userRepresentation);
 
@@ -40,6 +40,18 @@ public class KeycloakService {
         String userId = locationHeader.substring(locationHeader.lastIndexOf('/') + 1);
         userService.updateKeycloakIdById(user.getId(), userId);
         user.setKeycloakId(userId);
+
+        RoleRepresentation roleRepresentation = keycloak.realm(realm)
+                .roles()
+                .get("ROLE_USER") // Имя роли
+                .toRepresentation();
+
+        keycloak.realm(realm)
+                .users()
+                .get(userId)
+                .roles()
+                .realmLevel()
+                .add(Collections.singletonList(roleRepresentation));
     }
 
     public void deleteUserByKeycloakId(String keycloakId, String realm) {
@@ -50,11 +62,13 @@ public class KeycloakService {
         usersResource.get(keycloakId).remove();
     }
 
-    public void updateUsername(String userId, String username, String realm) {
-        UserResource userResource = keycloak.realm(realm).users().get(userId);
-        UserRepresentation user = userResource.toRepresentation();
-        user.setUsername(username);
-        userResource.update(user);
+    public void updateUsername(String keycloakId,  String username, String realm) {
+        UserResource userResource = keycloak.realm(realm).users().get(keycloakId);
+        UserRepresentation userRepresentation = userResource.toRepresentation();
+
+        userRepresentation.setUsername(username);
+
+        userResource.update(userRepresentation);
     }
 
     public void updatePassword(String userId, String password, String realm) {
@@ -69,17 +83,22 @@ public class KeycloakService {
         user.setCredentials(Collections.singletonList(credential));
 
         userResource.update(user);
-
     }
 
     public void updateRole(String userId, String newRole, String realm) {
-        UserResource userResource = keycloak.realm(realm).users().get(userId);
+        var userResource = keycloak.realm(realm).users().get(userId);
 
-        UserRepresentation user = userResource.toRepresentation();
+        var currentRoles = userResource.roles().realmLevel().listAll();
+        if (!currentRoles.isEmpty()) {
+            userResource.roles().realmLevel().remove(currentRoles);
+        }
 
-        user.setRealmRoles(Collections.singletonList(newRole));
+        RoleRepresentation role = keycloak.realm(realm)
+                .roles()
+                .get(newRole)
+                .toRepresentation();
 
-        userResource.update(user);
+        userResource.roles().realmLevel().add(Collections.singletonList(role));
     }
 
 
