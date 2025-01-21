@@ -66,7 +66,6 @@ public class UserService{
     }
 
     //region UPDATE
-
     @Transactional
     public void updatePasswordById(Long userId, String newPassword) {
         userRepository.updatePasswordById(userId, new BCryptPasswordEncoder().encode(newPassword));

@@ -30,7 +30,9 @@ public class ProductController {
     public String getProducts(@AuthenticationPrincipal OidcUser oidcUser, Model model) {
         String keycloakId = oidcUser.getSubject();
 
-        User user = userService.findByKeycloakId(keycloakId).get();
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
 
         productService.waitASecond();
         if (user == null) {
@@ -68,12 +70,18 @@ public class ProductController {
     }
 
     @GetMapping("/publishProductById")
-    public String publishProductById(@AuthenticationPrincipal User user,
+    public String publishProductById(@AuthenticationPrincipal OidcUser oidcUser,
                                      @RequestParam String name,
                                      @RequestParam String description,
                                      @RequestParam String price,
                                      @RequestParam Currency currency,
                                      @RequestParam Tag tag) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (name.isEmpty() || description.isEmpty() || price.isEmpty()) {
             return "/products/youMustFillEveryField";
         }
@@ -90,7 +98,13 @@ public class ProductController {
     }
 
     @PostMapping("/deleteProductById")
-    public String deleteProductById(@AuthenticationPrincipal User user, @RequestParam Long productId, @RequestParam String password) {
+    public String deleteProductById(@AuthenticationPrincipal OidcUser oidcUser, @RequestParam Long productId, @RequestParam String password) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (productService.findById(productId).isEmpty()) {
             return "/products/productDoesNotExist";
         }
@@ -120,8 +134,14 @@ public class ProductController {
     }
 
     @PostMapping("/updateYourNameById")
-    public String updateYourUsernameById(@AuthenticationPrincipal User user,
+    public String updateYourUsernameById(@AuthenticationPrincipal OidcUser oidcUser,
                                          @RequestParam String password, @RequestParam String newName, @RequestParam Long productId) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (productService.findById(productId).isEmpty()) {
             return "/products/productDoesNotExist";
         }
@@ -139,8 +159,14 @@ public class ProductController {
     }
 
     @PostMapping("/updateNotYourNameById")
-    public String updateNotYourNameById(@AuthenticationPrincipal User user,
+    public String updateNotYourNameById(@AuthenticationPrincipal OidcUser oidcUser,
                                         @RequestParam String password, @RequestParam Long productId) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (productService.findById(productId).isEmpty()) {
             return "/products/productDoesNotExist";
         }
@@ -164,8 +190,14 @@ public class ProductController {
     }
 
     @PostMapping("/updateYourDescriptionById")
-    public String updateDescriptionById(@AuthenticationPrincipal User user,
+    public String updateDescriptionById(@AuthenticationPrincipal OidcUser oidcUser,
                                         @RequestParam String newDescription, @RequestParam Long productId, @RequestParam String password) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (productService.findById(productId).isEmpty()) {
             return "/products/productDoesNotExist";
         }
@@ -183,8 +215,14 @@ public class ProductController {
     }
 
     @PostMapping("/updateNotYourDescriptionById")
-    public String updateNotYourDescriptionById(@AuthenticationPrincipal User user,
+    public String updateNotYourDescriptionById(@AuthenticationPrincipal OidcUser oidcUser,
                                                @RequestParam String password, @RequestParam Long productId) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (productService.findById(productId).isEmpty()) {
             return "/products/productDoesNotExist";
         }
@@ -208,8 +246,14 @@ public class ProductController {
     }
 
     @PostMapping("/updatePriceById")
-    public String updatePriceById(@AuthenticationPrincipal User user,
+    public String updatePriceById(@AuthenticationPrincipal OidcUser oidcUser,
                                   @RequestParam String password, @RequestParam Long productId, @RequestParam BigDecimal newPrice) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (productService.findById(productId).isEmpty()) {
             return "/products/productDoesNotExist";
         }
@@ -232,8 +276,14 @@ public class ProductController {
     }
 
     @PostMapping("/updateTagById")
-    public String updateTagById(@AuthenticationPrincipal User user,
+    public String updateTagById(@AuthenticationPrincipal OidcUser oidcUser,
                                 @RequestParam String password, @RequestParam Long productId, @RequestParam Tag tag) {
+        String keycloakId = oidcUser.getSubject();
+
+        Optional<User> userOptional = userService.findByKeycloakId(keycloakId);
+
+        User user = userOptional.get();
+
         if (productService.findById(productId).isEmpty()) {
             return "/products/productDoesNotExist";
         }
