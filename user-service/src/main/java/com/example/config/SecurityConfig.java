@@ -38,7 +38,6 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(source -> source
                         .requestMatchers(HttpMethod.GET, "/users/l/**").hasRole("OWNER")
-                        .requestMatchers(HttpMethod.GET, "/users/owner").hasRole("OWNER")
                         .requestMatchers(HttpMethod.GET, "/users/i/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/users/u/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/users").permitAll()

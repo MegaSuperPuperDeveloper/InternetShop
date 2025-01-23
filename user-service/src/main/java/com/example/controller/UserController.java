@@ -24,16 +24,6 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final KeycloakService keycloakService;
 
-    @GetMapping("/authenticated")
-    public String authenticated() {
-        return "authenticated";
-    }
-
-    @GetMapping("/owner")
-    public String owner() {
-        return "owner";
-    }
-
     //region Read
     @GetMapping
     public String getUsers(Model model) {
